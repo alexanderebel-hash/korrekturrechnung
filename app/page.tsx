@@ -99,7 +99,7 @@ export default function Home() {
   const [korrekturAnfrage, setKorrekturAnfrage] = useState('');
   const [showRechnungsnummerModal, setShowRechnungsnummerModal] = useState(false);
   const [rechnungsnummer, setRechnungsnummer] = useState('');
-  const [actionType, setActionType] = useState<'print' | 'download' | ''>('');
+  const [actionType, setActionType] = useState<'print' | 'download'>('print');
   const [pdfType, setPdfType] = useState<'ba' | 'privat'>('ba');
 
   const processExcelFile = async (file: File) => {
