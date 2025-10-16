@@ -501,7 +501,7 @@ export default function Home() {
   const handleRechnungsnummerSubmit = () => {
     if (rechnungsnummer.trim()) {
       setShowRechnungsnummerModal(false);
-      executePrintOrDownload(pdfType, actionType);
+      executePrintOrDownload(pdfType, actionType || 'print');
     }
   };
 
