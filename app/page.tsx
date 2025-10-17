@@ -1317,17 +1317,29 @@ export default function Home() {
               </div>
 
               <div className="p-8 print:p-0">
+                <style dangerouslySetInnerHTML={{__html: `
+                  @media print {
+                    @page {
+                      size: A4;
+                      margin-top: 4.37cm;
+                      margin-left: 1.75cm;
+                      margin-right: 1.25cm;
+                      margin-bottom: 2.54cm;
+                    }
+                    body { font-size: 12px; }
+                  }
+                `}} />
                 <div
-                  className="bg-white print:min-h-[297mm]"
-                  style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px', lineHeight: '1.4', padding: '10mm' }}
+                  className="bg-white"
+                  style={{ fontFamily: 'Arial, sans-serif', fontSize: '12px', lineHeight: '1.4' }}
                 >
-                  <div className="bg-white" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px', lineHeight: '1.4' }}>
+                  <div className="bg-white" style={{ fontFamily: 'Arial, sans-serif', fontSize: '12px', lineHeight: '1.4' }}>
                     <div className="mb-6">
                       <div className="flex items-start justify-between mb-4 pb-3" style={{ borderBottom: '2px solid #4F46E5' }}>
                         <div className="flex-1">
                           <img src={logoUrl} alt="DomusVita Logo" style={{ height: '60px', width: 'auto' }} />
                         </div>
-                        <div className="text-right" style={{ fontSize: '9px', color: '#666' }}>
+                        <div className="text-right" style={{ fontSize: '10px', color: '#666' }}>
                           <p style={{ fontWeight: 'bold', margin: 0 }}>{dienst.name}</p>
                           <p style={{ margin: 0 }}>{dienst.strasse}</p>
                           <p style={{ margin: 0 }}>{dienst.plz}</p>
@@ -1336,22 +1348,23 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <div className="mb-4" style={{ fontSize: '8px', color: '#666' }}>
+                    <div className="mb-4" style={{ fontSize: '9px', color: '#666' }}>
                       <p style={{ margin: 0 }}>{dienst.name}, {dienst.strasse}, {dienst.plz}</p>
                     </div>
 
-                    <div className="mb-4">
-                      <p style={{ fontWeight: 'bold', margin: 0 }}>Bezirksamt Mitte von Berlin</p>
-                      <p style={{ margin: 0 }}>Standort Wedding</p>
-                      <p style={{ margin: 0 }}>Muellerstrasse 146 - 147</p>
-                      <p style={{ margin: 0 }}>13344 Berlin</p>
-                    </div>
-
-                    <div className="mb-4 text-right" style={{ fontSize: '9px' }}>
-                      <p style={{ margin: 0 }}>Telefon: {dienst.telefon}</p>
-                      <p style={{ margin: 0 }}>Telefax: {dienst.telefax}</p>
-                      <p style={{ margin: 0 }}>E-Mail: {dienst.email}</p>
-                      <p style={{ fontWeight: 'bold', marginTop: '4px', margin: 0 }}>Datum: Berlin, {new Date().toLocaleDateString('de-DE')}</p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                      <div>
+                        <p style={{ fontWeight: 'bold', margin: 0 }}>Bezirksamt Mitte von Berlin</p>
+                        <p style={{ margin: 0 }}>Standort Wedding</p>
+                        <p style={{ margin: 0 }}>Muellerstrasse 146 - 147</p>
+                        <p style={{ margin: 0 }}>13344 Berlin</p>
+                      </div>
+                      <div style={{ textAlign: 'right', fontSize: '10px' }}>
+                        <p style={{ margin: 0 }}>Telefon: {dienst.telefon}</p>
+                        <p style={{ margin: 0 }}>Telefax: {dienst.telefax}</p>
+                        <p style={{ margin: 0 }}>E-Mail: {dienst.email}</p>
+                        <p style={{ fontWeight: 'bold', marginTop: '4px', margin: 0 }}>Datum: Berlin, {new Date().toLocaleDateString('de-DE')}</p>
+                      </div>
                     </div>
 
                     <div style={{ border: '1px solid #E5E7EB', borderRadius: '4px', padding: '8px', marginBottom: '12px', background: '#F9FAFB' }}>
@@ -1370,7 +1383,7 @@ export default function Home() {
                     </div>
 
                     <div style={{ border: '1px solid #DBEAFE', padding: '8px', marginBottom: '12px', background: '#EFF6FF' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '9px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '10px' }}>
                         <div>
                           <p style={{ margin: 0 }}><strong>Leistungsempfaenger:</strong></p>
                           <p style={{ fontWeight: 'bold', margin: '2px 0' }}>{klientData.name}</p>
@@ -1378,6 +1391,7 @@ export default function Home() {
                         </div>
                         <div>
                           <p style={{ margin: 0 }}><strong>Pflegegrad:</strong> {klientData.pflegegrad}</p>
+                          <p style={{ margin: '4px 0 0 0' }}><strong>Leistungsgrundlage:</strong> SGB XI §36</p>
                         </div>
                       </div>
                     </div>
@@ -1481,14 +1495,13 @@ export default function Home() {
                       </tbody>
                     </table>
 
-                    <div style={{ background: '#FEF3C7', borderLeft: '3px solid #F59E0B', padding: '8px', marginBottom: '12px', fontSize: '8px' }}>
+                    <div style={{ background: '#FEF3C7', borderLeft: '3px solid #F59E0B', padding: '8px', marginBottom: '12px', fontSize: '10px' }}>
                       <p style={{ fontWeight: 'bold', margin: '0 0 4px 0' }}>Hinweis:</p>
                       <p style={{ margin: 0 }}>Positionen mit "erbracht, aktuell nicht bewilligt" wurden dokumentarisch aufgefuehrt, fliessen jedoch nicht in die Rechnungssumme ein.</p>
                     </div>
 
-                    <p style={{ fontSize: '9px', marginTop: '12px', margin: '4px 0' }}><strong>Leistungsgrundlage:</strong> SGB XI §36</p>
-                    <p style={{ fontSize: '9px', margin: 0 }}>Zahlbar bis zum {new Date(Date.now() + 30*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
-                    <p style={{ fontSize: '9px', margin: 0 }}>Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
+                    <p style={{ fontSize: '10px', margin: '8px 0' }}>Zahlbar bis zum {new Date(Date.now() + 30*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
+                    <p style={{ fontSize: '10px', margin: 0 }}>Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
 
                     <div style={{ borderTop: '2px solid #4F46E5', marginTop: '16px', paddingTop: '8px' }}>
                       <div style={{ fontSize: '7px', color: '#666', textAlign: 'center', lineHeight: '1.6' }}>
@@ -1520,13 +1533,25 @@ export default function Home() {
               </div>
 
               <div className="p-8 print:p-0">
-                <div className="bg-white" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px', lineHeight: '1.4' }}>
+                <style dangerouslySetInnerHTML={{__html: `
+                  @media print {
+                    @page {
+                      size: A4;
+                      margin-top: 4.37cm;
+                      margin-left: 1.75cm;
+                      margin-right: 1.25cm;
+                      margin-bottom: 2.54cm;
+                    }
+                    body { font-size: 12px; }
+                  }
+                `}} />
+                <div className="bg-white" style={{ fontFamily: 'Arial, sans-serif', fontSize: '12px', lineHeight: '1.4' }}>
                   <div className="mb-6">
                     <div className="flex items-start justify-between mb-4 pb-3" style={{ borderBottom: '2px solid #EA580C' }}>
                       <div className="flex-1">
                         <img src={logoUrl} alt="DomusVita Logo" style={{ height: '60px', width: 'auto' }} />
                       </div>
-                      <div className="text-right" style={{ fontSize: '9px', color: '#666' }}>
+                      <div className="text-right" style={{ fontSize: '10px', color: '#666' }}>
                         <p style={{ fontWeight: 'bold', margin: 0 }}>{dienst.name}</p>
                         <p style={{ margin: 0 }}>{dienst.strasse}</p>
                         <p style={{ margin: 0 }}>{dienst.plz}</p>
@@ -1534,25 +1559,35 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="mb-4">
-                    <p style={{ fontWeight: 'bold', margin: 0 }}>{klientData.name}</p>
-                    <p style={{ margin: 0 }}>{klientAdresse}</p>
-                  </div>
-
-                  <div className="mb-4 text-right" style={{ fontSize: '9px' }}>
-                    <p style={{ margin: 0 }}>Telefon: {dienst.telefon}</p>
-                    <p style={{ margin: 0 }}>E-Mail: {dienst.email}</p>
-                    <p style={{ fontWeight: 'bold', marginTop: '4px', margin: 0 }}>Datum: Berlin, {new Date().toLocaleDateString('de-DE')}</p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                    <div>
+                      <p style={{ fontWeight: 'bold', margin: 0 }}>{klientData.name}</p>
+                      <p style={{ margin: 0 }}>{klientAdresse}</p>
+                    </div>
+                    <div style={{ textAlign: 'right', fontSize: '10px' }}>
+                      <p style={{ margin: 0 }}>Telefon: {dienst.telefon}</p>
+                      <p style={{ margin: 0 }}>Telefax: {dienst.telefax}</p>
+                      <p style={{ margin: 0 }}>E-Mail: {dienst.email}</p>
+                      <p style={{ fontWeight: 'bold', marginTop: '4px', margin: 0 }}>Datum: Berlin, {new Date().toLocaleDateString('de-DE')}</p>
+                    </div>
                   </div>
 
                   <div style={{ borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB', padding: '8px 0', marginBottom: '12px', background: '#FFF7ED' }}>
                     <h2 style={{ fontSize: '14px', fontWeight: 'bold', textAlign: 'center', margin: 0 }}>PRIVATRECHNUNG</h2>
-                    <p style={{ fontSize: '9px', textAlign: 'center', margin: '2px 0 0 0' }}>Nicht bewilligte Leistungen</p>
+                    <p style={{ fontSize: '10px', textAlign: 'center', margin: '2px 0 0 0' }}>Nicht bewilligte Leistungen</p>
                   </div>
 
-                  <div style={{ border: '1px solid #E5E7EB', padding: '8px', marginBottom: '12px', fontSize: '9px' }}>
-                    <p style={{ margin: 0 }}><strong>Abrechnungszeitraum:</strong> {klientData.zeitraumVon} bis {klientData.zeitraumBis}</p>
-                    <p style={{ margin: '2px 0 0 0' }}><strong>Leistungsempfaenger:</strong> {klientData.name}</p>
+                  <div style={{ border: '1px solid #E5E7EB', padding: '8px', marginBottom: '12px', fontSize: '10px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div>
+                        <p style={{ margin: 0 }}><strong>Abrechnungszeitraum:</strong> {klientData.zeitraumVon} bis {klientData.zeitraumBis}</p>
+                        <p style={{ margin: '2px 0 0 0' }}><strong>Leistungsempfaenger:</strong> {klientData.name}</p>
+                      </div>
+                      <div>
+                        <p style={{ margin: 0 }}><strong>Pflegegrad:</strong> {klientData.pflegegrad}</p>
+                        <p style={{ margin: '4px 0 0 0' }}><strong>Leistungsgrundlage:</strong> SGB XI §36</p>
+                      </div>
+                    </div>
                   </div>
 
                   <table style={{ width: '100%', fontSize: '9px', marginBottom: '12px', borderCollapse: 'collapse' }}>
@@ -1599,14 +1634,13 @@ export default function Home() {
                     </tbody>
                   </table>
 
-                  <div style={{ background: '#FEF3C7', padding: '8px', borderRadius: '6px', fontSize: '8px', marginTop: '12px' }}>
+                  <div style={{ background: '#FEF3C7', padding: '8px', borderRadius: '6px', fontSize: '10px', marginTop: '12px' }}>
                     <p style={{ fontWeight: 'bold', margin: '0 0 4px 0' }}>Hinweis:</p>
                     <p style={{ margin: 0 }}>Die aufgefuehrten Leistungen wurden von Ihrer Pflegekasse bzw. dem Bezirksamt nicht bewilligt oder ueberschreiten die genehmigte Menge.</p>
                   </div>
 
-                  <p style={{ fontSize: '9px', marginTop: '12px', margin: '4px 0' }}><strong>Leistungsgrundlage:</strong> SGB XI §36</p>
-                  <p style={{ fontSize: '9px', margin: 0 }}>Zahlbar bis zum {new Date(Date.now() + 14*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
-                  <p style={{ fontSize: '9px', margin: 0 }}>Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
+                  <p style={{ fontSize: '10px', margin: '8px 0' }}>Zahlbar bis zum {new Date(Date.now() + 14*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
+                  <p style={{ fontSize: '10px', margin: 0 }}>Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
 
                   <div style={{ borderTop: '2px solid #EA580C', marginTop: '16px', paddingTop: '8px' }}>
                     <div style={{ fontSize: '7px', color: '#666', textAlign: 'center', lineHeight: '1.6' }}>
