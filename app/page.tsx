@@ -1304,9 +1304,9 @@ export default function Home() {
         )}
 
         {showPdfPreview && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto print:bg-white print:relative print:block">
-            <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto my-8 print:max-w-none print:m-0 print:shadow-none print:rounded-none">
-              <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center z-10">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto print:bg-white print:relative print:block print:overflow-visible">
+            <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto my-8 print:max-w-none print:max-h-none print:overflow-visible print:m-0 print:shadow-none print:rounded-none">
+              <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center z-10 print:hidden">
                 <h3 className="text-xl font-bold text-gray-800">Korrekturrechnung BA</h3>
                 <button
                   onClick={() => setShowPdfPreview(false)}
@@ -1507,11 +1507,11 @@ export default function Home() {
         )}
 
         {showPrivatPreview && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-            <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto my-8">
-              <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center z-10">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto print:bg-white print:relative print:block print:overflow-visible print:p-0">
+            <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto my-8 print:max-w-none print:max-h-none print:overflow-visible print:m-0 print:shadow-none print:rounded-none">
+              <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center z-10 print:hidden">
                 <h3 className="text-xl font-bold text-gray-800">Privatrechnung Klient</h3>
-                <button 
+                <button
                   onClick={() => setShowPrivatPreview(false)}
                   className="text-gray-500 hover:text-gray-700 text-2xl"
                 >
@@ -1519,7 +1519,7 @@ export default function Home() {
                 </button>
               </div>
 
-              <div className="p-8">
+              <div className="p-8 print:p-0">
                 <div className="bg-white" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px', lineHeight: '1.4' }}>
                   <div className="mb-6">
                     <div className="flex items-start justify-between mb-4 pb-3" style={{ borderBottom: '2px solid #EA580C' }}>
