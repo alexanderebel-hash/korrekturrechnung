@@ -1320,26 +1320,49 @@ export default function Home() {
                 <style dangerouslySetInnerHTML={{__html: `
                   @media print {
                     @page {
-                      size: A4;
-                      margin-top: 1cm;
-                      margin-left: 1.75cm;
-                      margin-right: 1.25cm;
-                      margin-bottom: 2.54cm;
+                      size: A4 portrait;
+                      margin: 48mm 16mm 6mm 21mm;
                     }
-                    body { font-size: 14px; }
+                    body {
+                      font-family: Arial, Helvetica, sans-serif;
+                      font-size: 9pt;
+                      line-height: 11pt;
+                      font-variant-numeric: tabular-nums;
+                    }
+                    .invoice-header-imprint {
+                      font-family: Calibri, "Segoe UI", system-ui, sans-serif;
+                      font-size: 8pt;
+                      line-height: 11pt;
+                    }
+                    .invoice-meta {
+                      font-size: 10pt;
+                      line-height: 12.7pt;
+                    }
+                    .invoice-table thead th {
+                      font-style: italic;
+                      font-size: 9pt;
+                    }
+                    .invoice-table tbody td {
+                      font-size: 9pt;
+                      line-height: 11pt;
+                    }
+                    .invoice-total-label {
+                      font-weight: 700;
+                      font-size: 12pt;
+                    }
                   }
                 `}} />
                 <div
                   className="bg-white"
-                  style={{ fontFamily: 'Arial, sans-serif', fontSize: '14px', lineHeight: '1.4' }}
+                  style={{ fontFamily: 'Arial, sans-serif', fontSize: '9pt', lineHeight: '11pt' }}
                 >
-                  <div className="bg-white" style={{ fontFamily: 'Arial, sans-serif', fontSize: '14px', lineHeight: '1.4' }}>
+                  <div className="bg-white invoice-body" style={{ fontFamily: 'Arial, sans-serif', fontSize: '9pt', lineHeight: '11pt' }}>
                     <div className="mb-6">
                       <div className="flex items-start justify-between mb-4 pb-3" style={{ borderBottom: '2px solid #4F46E5' }}>
                         <div className="flex-1">
                           <img src={logoUrl} alt="DomusVita Logo" style={{ height: '60px', width: 'auto' }} />
                         </div>
-                        <div className="text-right" style={{ fontSize: '10px', color: '#666' }}>
+                        <div className="text-right invoice-header-imprint" style={{ fontSize: '8pt', color: '#666' }}>
                           <p style={{ fontWeight: 'bold', margin: 0 }}>{dienst.name}</p>
                           <p style={{ margin: 0 }}>{dienst.strasse}</p>
                           <p style={{ margin: 0 }}>{dienst.plz}</p>
@@ -1348,18 +1371,18 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <div className="mb-4" style={{ fontSize: '9px', color: '#666' }}>
+                    <div className="mb-4 invoice-header-imprint" style={{ fontSize: '8pt', color: '#666' }}>
                       <p style={{ margin: 0 }}>{dienst.name}, {dienst.strasse}, {dienst.plz}</p>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                    <div className="invoice-meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', fontSize: '10pt', lineHeight: '12.7pt' }}>
                       <div>
                         <p style={{ fontWeight: 'bold', margin: 0 }}>Bezirksamt Mitte von Berlin</p>
                         <p style={{ margin: 0 }}>Standort Wedding</p>
                         <p style={{ margin: 0 }}>Muellerstrasse 146 - 147</p>
                         <p style={{ margin: 0 }}>13344 Berlin</p>
                       </div>
-                      <div style={{ textAlign: 'right', fontSize: '10px' }}>
+                      <div style={{ textAlign: 'right', fontSize: '10pt' }}>
                         <p style={{ margin: 0 }}>Telefon: {dienst.telefon}</p>
                         <p style={{ margin: 0 }}>Telefax: {dienst.telefax}</p>
                         <p style={{ margin: 0 }}>E-Mail: {dienst.email}</p>
@@ -1368,7 +1391,7 @@ export default function Home() {
                     </div>
 
                     <div style={{ border: '1px solid #E5E7EB', borderRadius: '4px', padding: '8px', marginBottom: '12px', background: '#F9FAFB' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '9px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '9pt', lineHeight: '11pt' }}>
                         <div>
                           <p style={{ margin: 0 }}><strong>Rechnung Nr.: {rechnungsnummer}</strong></p>
                           <p style={{ margin: 0 }}><strong>Debitor:</strong> {klientData.debitor}</p>
@@ -1377,13 +1400,13 @@ export default function Home() {
                           <p style={{ margin: 0 }}><strong>IK:</strong> {dienst.ik}</p>
                         </div>
                       </div>
-                      <p style={{ fontSize: '9px', marginTop: '6px', margin: 0 }}>
+                      <p style={{ fontSize: '9pt', lineHeight: '11pt', marginTop: '6px', margin: 0 }}>
                         <strong>Abrechnungszeitraum:</strong> {klientData.zeitraumVon} bis {klientData.zeitraumBis}
                       </p>
                     </div>
 
-                    <div style={{ border: '1px solid #DBEAFE', padding: '8px', marginBottom: '12px', background: '#EFF6FF' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '10px' }}>
+                    <div className="invoice-meta" style={{ border: '1px solid #DBEAFE', padding: '8px', marginBottom: '12px', background: '#EFF6FF' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '10pt', lineHeight: '12.7pt' }}>
                         <div>
                           <p style={{ margin: 0 }}><strong>Leistungsempfaenger:</strong></p>
                           <p style={{ fontWeight: 'bold', margin: '2px 0' }}>{klientData.name}</p>
@@ -1396,14 +1419,14 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <table style={{ width: '100%', fontSize: '9px', marginBottom: '12px', borderCollapse: 'collapse' }}>
+                    <table className="invoice-table" style={{ width: '100%', fontSize: '9pt', lineHeight: '11pt', marginBottom: '12px', borderCollapse: 'collapse', fontVariantNumeric: 'tabular-nums' }}>
                       <thead>
                         <tr style={{ background: '#C7D2FE' }}>
-                          <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'left' }}>Abk.</th>
-                          <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'left' }}>Leistung</th>
-                          <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right' }}>Anzahl</th>
-                          <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right' }}>Einzelpreis</th>
-                          <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right' }}>Gesamtpreis</th>
+                          <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'left', fontStyle: 'italic', fontWeight: 'normal' }}>Abk.</th>
+                          <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'left', fontStyle: 'italic', fontWeight: 'normal' }}>Leistung</th>
+                          <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right', fontStyle: 'italic', fontWeight: 'normal' }}>Anzahl</th>
+                          <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right', fontStyle: 'italic', fontWeight: 'normal' }}>Einzelpreis</th>
+                          <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right', fontStyle: 'italic', fontWeight: 'normal' }}>Gesamtpreis</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1488,23 +1511,23 @@ export default function Home() {
                           <td colSpan={4} style={{ padding: '4px', textAlign: 'right' }}>./. Anteil Pflegekasse:</td>
                           <td style={{ padding: '4px', textAlign: 'right' }}>{pflegekassenBetrag.toFixed(2)}</td>
                         </tr>
-                        <tr style={{ background: '#C7D2FE', fontWeight: 'bold', fontSize: '11px' }}>
+                        <tr className="invoice-total-label" style={{ background: '#C7D2FE', fontWeight: 'bold', fontSize: '12pt' }}>
                           <td colSpan={4} style={{ padding: '6px 4px', textAlign: 'right' }}>Rechnungsbetrag:</td>
                           <td style={{ padding: '6px 4px', textAlign: 'right', color: '#4F46E5' }}>{rechnung.rechnungsbetragBA.toFixed(2)}</td>
                         </tr>
                       </tbody>
                     </table>
 
-                    <div style={{ background: '#FEF3C7', borderLeft: '3px solid #F59E0B', padding: '8px', marginBottom: '12px', fontSize: '10px' }}>
+                    <div style={{ background: '#FEF3C7', borderLeft: '3px solid #F59E0B', padding: '8px', marginBottom: '12px', fontSize: '10pt', lineHeight: '12.7pt' }}>
                       <p style={{ fontWeight: 'bold', margin: '0 0 4px 0' }}>Hinweis:</p>
                       <p style={{ margin: 0 }}>Positionen mit "erbracht, aktuell nicht bewilligt" wurden dokumentarisch aufgefuehrt, fliessen jedoch nicht in die Rechnungssumme ein.</p>
                     </div>
 
-                    <p style={{ fontSize: '10px', margin: '8px 0' }}>Zahlbar bis zum {new Date(Date.now() + 30*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
-                    <p style={{ fontSize: '10px', margin: 0 }}>Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
+                    <p style={{ fontSize: '10pt', lineHeight: '12.7pt', margin: '8px 0' }}>Zahlbar bis zum {new Date(Date.now() + 30*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
+                    <p style={{ fontSize: '10pt', lineHeight: '12.7pt', margin: 0 }}>Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
 
-                    <div style={{ borderTop: '2px solid #4F46E5', marginTop: '16px', paddingTop: '8px' }}>
-                      <div style={{ fontSize: '7px', color: '#666', textAlign: 'center', lineHeight: '1.6' }}>
+                    <div className="page-break-avoid" style={{ borderTop: '2px solid #4F46E5', marginTop: '16px', paddingTop: '8px' }}>
+                      <div className="invoice-header-imprint" style={{ fontSize: '8pt', color: '#666', textAlign: 'center', lineHeight: '1.6' }}>
                         <p style={{ margin: '2px 0', fontWeight: 'bold' }}>Sitz der Gesellschaft: DomusVita Gesundheit GmbH • Waldemarstrasse 10 A • 10999 Berlin</p>
                         <p style={{ margin: '2px 0' }}>Telefon: 030/6120152-0 • Telefax: 030/6120152-10 • E-Mail: kreuzberg@domusvita.de • www.domusvita.de</p>
                         <p style={{ margin: '2px 0' }}>Geschäftsführer: Lukas Dahrendorf • Alexander Ebel</p>
@@ -1536,22 +1559,45 @@ export default function Home() {
                 <style dangerouslySetInnerHTML={{__html: `
                   @media print {
                     @page {
-                      size: A4;
-                      margin-top: 1cm;
-                      margin-left: 1.75cm;
-                      margin-right: 1.25cm;
-                      margin-bottom: 2.54cm;
+                      size: A4 portrait;
+                      margin: 48mm 16mm 6mm 21mm;
                     }
-                    body { font-size: 14px; }
+                    body {
+                      font-family: Arial, Helvetica, sans-serif;
+                      font-size: 9pt;
+                      line-height: 11pt;
+                      font-variant-numeric: tabular-nums;
+                    }
+                    .invoice-header-imprint {
+                      font-family: Calibri, "Segoe UI", system-ui, sans-serif;
+                      font-size: 8pt;
+                      line-height: 11pt;
+                    }
+                    .invoice-meta {
+                      font-size: 10pt;
+                      line-height: 12.7pt;
+                    }
+                    .invoice-table thead th {
+                      font-style: italic;
+                      font-size: 9pt;
+                    }
+                    .invoice-table tbody td {
+                      font-size: 9pt;
+                      line-height: 11pt;
+                    }
+                    .invoice-total-label {
+                      font-weight: 700;
+                      font-size: 12pt;
+                    }
                   }
                 `}} />
-                <div className="bg-white" style={{ fontFamily: 'Arial, sans-serif', fontSize: '14px', lineHeight: '1.4' }}>
+                <div className="bg-white invoice-body" style={{ fontFamily: 'Arial, sans-serif', fontSize: '9pt', lineHeight: '11pt' }}>
                   <div className="mb-6">
                     <div className="flex items-start justify-between mb-4 pb-3" style={{ borderBottom: '2px solid #EA580C' }}>
                       <div className="flex-1">
                         <img src={logoUrl} alt="DomusVita Logo" style={{ height: '60px', width: 'auto' }} />
                       </div>
-                      <div className="text-right" style={{ fontSize: '10px', color: '#666' }}>
+                      <div className="text-right invoice-header-imprint" style={{ fontSize: '8pt', color: '#666' }}>
                         <p style={{ fontWeight: 'bold', margin: 0 }}>{dienst.name}</p>
                         <p style={{ margin: 0 }}>{dienst.strasse}</p>
                         <p style={{ margin: 0 }}>{dienst.plz}</p>
@@ -1559,12 +1605,12 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                  <div className="invoice-meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', fontSize: '10pt', lineHeight: '12.7pt' }}>
                     <div>
                       <p style={{ fontWeight: 'bold', margin: 0 }}>{klientData.name}</p>
                       <p style={{ margin: 0 }}>{klientAdresse}</p>
                     </div>
-                    <div style={{ textAlign: 'right', fontSize: '10px' }}>
+                    <div style={{ textAlign: 'right', fontSize: '10pt' }}>
                       <p style={{ margin: 0 }}>Telefon: {dienst.telefon}</p>
                       <p style={{ margin: 0 }}>Telefax: {dienst.telefax}</p>
                       <p style={{ margin: 0 }}>E-Mail: {dienst.email}</p>
@@ -1573,11 +1619,11 @@ export default function Home() {
                   </div>
 
                   <div style={{ borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB', padding: '8px 0', marginBottom: '12px', background: '#FFF7ED' }}>
-                    <h2 style={{ fontSize: '14px', fontWeight: 'bold', textAlign: 'center', margin: 0 }}>PRIVATRECHNUNG</h2>
-                    <p style={{ fontSize: '10px', textAlign: 'center', margin: '2px 0 0 0' }}>Nicht bewilligte Leistungen</p>
+                    <h2 style={{ fontSize: '12pt', fontWeight: 'bold', textAlign: 'center', margin: 0 }}>PRIVATRECHNUNG</h2>
+                    <p style={{ fontSize: '10pt', lineHeight: '12.7pt', textAlign: 'center', margin: '2px 0 0 0' }}>Nicht bewilligte Leistungen</p>
                   </div>
 
-                  <div style={{ border: '1px solid #E5E7EB', padding: '8px', marginBottom: '12px', fontSize: '10px' }}>
+                  <div className="invoice-meta" style={{ border: '1px solid #E5E7EB', padding: '8px', marginBottom: '12px', fontSize: '10pt', lineHeight: '12.7pt' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                       <div>
                         <p style={{ margin: 0 }}><strong>Abrechnungszeitraum:</strong> {klientData.zeitraumVon} bis {klientData.zeitraumBis}</p>
@@ -1590,14 +1636,14 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <table style={{ width: '100%', fontSize: '9px', marginBottom: '12px', borderCollapse: 'collapse' }}>
+                  <table className="invoice-table" style={{ width: '100%', fontSize: '9pt', lineHeight: '11pt', marginBottom: '12px', borderCollapse: 'collapse', fontVariantNumeric: 'tabular-nums' }}>
                     <thead>
                       <tr style={{ background: '#FED7AA' }}>
-                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'left' }}>Abk.</th>
-                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'left' }}>Leistung</th>
-                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right' }}>Anzahl</th>
-                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right' }}>Einzelpreis</th>
-                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right' }}>Gesamtpreis</th>
+                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'left', fontStyle: 'italic', fontWeight: 'normal' }}>Abk.</th>
+                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'left', fontStyle: 'italic', fontWeight: 'normal' }}>Leistung</th>
+                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right', fontStyle: 'italic', fontWeight: 'normal' }}>Anzahl</th>
+                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right', fontStyle: 'italic', fontWeight: 'normal' }}>Einzelpreis</th>
+                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right', fontStyle: 'italic', fontWeight: 'normal' }}>Gesamtpreis</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1627,23 +1673,23 @@ export default function Home() {
                         <td colSpan={4} style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>ZINV (3,38%):</td>
                         <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{korrektur.zinvPrivat.toFixed(2)}</td>
                       </tr>
-                      <tr style={{ background: '#FED7AA', fontWeight: 'bold', fontSize: '11px' }}>
+                      <tr className="invoice-total-label" style={{ background: '#FED7AA', fontWeight: 'bold', fontSize: '12pt' }}>
                         <td colSpan={4} style={{ padding: '6px 4px', textAlign: 'right' }}>Rechnungsbetrag:</td>
                         <td style={{ padding: '6px 4px', textAlign: 'right', color: '#EA580C' }}>{korrektur.gesamtbetragPrivat.toFixed(2)}</td>
                       </tr>
                     </tbody>
                   </table>
 
-                  <div style={{ background: '#FEF3C7', padding: '8px', borderRadius: '6px', fontSize: '10px', marginTop: '12px' }}>
+                  <div style={{ background: '#FEF3C7', padding: '8px', borderRadius: '6px', fontSize: '10pt', lineHeight: '12.7pt', marginTop: '12px' }}>
                     <p style={{ fontWeight: 'bold', margin: '0 0 4px 0' }}>Hinweis:</p>
                     <p style={{ margin: 0 }}>Die aufgefuehrten Leistungen wurden von Ihrer Pflegekasse bzw. dem Bezirksamt nicht bewilligt oder ueberschreiten die genehmigte Menge.</p>
                   </div>
 
-                  <p style={{ fontSize: '10px', margin: '8px 0' }}>Zahlbar bis zum {new Date(Date.now() + 14*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
-                  <p style={{ fontSize: '10px', margin: 0 }}>Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
+                  <p style={{ fontSize: '10pt', lineHeight: '12.7pt', margin: '8px 0' }}>Zahlbar bis zum {new Date(Date.now() + 14*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
+                  <p style={{ fontSize: '10pt', lineHeight: '12.7pt', margin: 0 }}>Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
 
-                  <div style={{ borderTop: '2px solid #EA580C', marginTop: '16px', paddingTop: '8px' }}>
-                    <div style={{ fontSize: '7px', color: '#666', textAlign: 'center', lineHeight: '1.6' }}>
+                  <div className="page-break-avoid" style={{ borderTop: '2px solid #EA580C', marginTop: '16px', paddingTop: '8px' }}>
+                    <div className="invoice-header-imprint" style={{ fontSize: '8pt', color: '#666', textAlign: 'center', lineHeight: '1.6' }}>
                       <p style={{ margin: '2px 0', fontWeight: 'bold' }}>Sitz der Gesellschaft: DomusVita Gesundheit GmbH • Waldemarstrasse 10 A • 10999 Berlin</p>
                       <p style={{ margin: '2px 0' }}>Telefon: 030/6120152-0 • Telefax: 030/6120152-10 • E-Mail: kreuzberg@domusvita.de • www.domusvita.de</p>
                       <p style={{ margin: '2px 0' }}>Geschäftsführer: Lukas Dahrendorf • Alexander Ebel</p>
