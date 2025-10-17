@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media print {
+  @page {
+    margin: 10mm;
+    size: A4 portrait;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .fixed {
+    position: relative !important;
+  }
+  
+  button,
+  .sticky.top-0,
+  [class*="bg-indigo-"],
+  [class*="bg-blue-"],
+  [class*="bg-orange-"],
+  [class*="bg-red-"],
+  [class*="bg-gray-"] {
+    display: none !important;
+  }
+  
+  .bg-white {
+    display: block !important;
+  }
+  
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
