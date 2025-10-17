@@ -1254,11 +1254,9 @@ export default function Home() {
         {showPdfPreview && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto print:bg-white print:relative print:block">
             <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto my-8 print:max-w-none print:m-0 print:shadow-none print:rounded-none">
-              <div className="p-8">
-                <div className="p-8 print:p-0">
-                <div className="bg-white print:min-h-[297mm]" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px', lineHeight: '1.4', padding: '10mm' }}>
+              <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center z-10">
                 <h3 className="text-xl font-bold text-gray-800">Korrekturrechnung BA</h3>
-                <button 
+                <button
                   onClick={() => setShowPdfPreview(false)}
                   className="text-gray-500 hover:text-gray-700 text-2xl"
                 >
@@ -1266,183 +1264,188 @@ export default function Home() {
                 </button>
               </div>
 
-              <div className="p-8">
-                <div className="bg-white" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px', lineHeight: '1.4' }}>
-                  <div className="mb-6">
-                    <div className="flex items-start justify-between mb-4 pb-3" style={{ borderBottom: '2px solid #4F46E5' }}>
-                      <div className="flex-1">
-                        <img src={logoUrl} alt="DomusVita Logo" style={{ height: '60px', width: 'auto' }} />
-                      </div>
-                      <div className="text-right" style={{ fontSize: '9px', color: '#666' }}>
-                        <p style={{ fontWeight: 'bold', margin: 0 }}>{dienst.name}</p>
-                        <p style={{ margin: 0 }}>{dienst.strasse}</p>
-                        <p style={{ margin: 0 }}>{dienst.plz}</p>
-                        <p style={{ margin: '4px 0 0 0' }}>IK: {dienst.ik}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mb-4" style={{ fontSize: '8px', color: '#666' }}>
-                    <p style={{ margin: 0 }}>{dienst.name}, {dienst.strasse}, {dienst.plz}</p>
-                  </div>
-
-                  <div className="mb-4">
-                    <p style={{ fontWeight: 'bold', margin: 0 }}>Bezirksamt Mitte von Berlin</p>
-                    <p style={{ margin: 0 }}>Standort Wedding</p>
-                    <p style={{ margin: 0 }}>Muellerstrasse 146 - 147</p>
-                    <p style={{ margin: 0 }}>13344 Berlin</p>
-                  </div>
-
-                  <div className="mb-4 text-right" style={{ fontSize: '9px' }}>
-                    <p style={{ margin: 0 }}>Telefon: {dienst.telefon}</p>
-                    <p style={{ margin: 0 }}>Telefax: {dienst.telefax}</p>
-                    <p style={{ margin: 0 }}>E-Mail: {dienst.email}</p>
-                    <p style={{ fontWeight: 'bold', marginTop: '4px', margin: 0 }}>Datum: Berlin, {new Date().toLocaleDateString('de-DE')}</p>
-                  </div>
-
-                  <div style={{ border: '1px solid #E5E7EB', borderRadius: '4px', padding: '8px', marginBottom: '12px', background: '#F9FAFB' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '9px' }}>
-                      <div>
-                        <p style={{ margin: 0 }}><strong>Rechnung Nr.: {rechnungsnummer}</strong></p>
-                        <p style={{ margin: 0 }}><strong>Debitor:</strong> {klientData.debitor}</p>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <p style={{ margin: 0 }}><strong>IK:</strong> {dienst.ik}</p>
+              <div className="p-8 print:p-0">
+                <div
+                  className="bg-white print:min-h-[297mm]"
+                  style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px', lineHeight: '1.4', padding: '10mm' }}
+                >
+                  <div className="bg-white" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px', lineHeight: '1.4' }}>
+                    <div className="mb-6">
+                      <div className="flex items-start justify-between mb-4 pb-3" style={{ borderBottom: '2px solid #4F46E5' }}>
+                        <div className="flex-1">
+                          <img src={logoUrl} alt="DomusVita Logo" style={{ height: '60px', width: 'auto' }} />
+                        </div>
+                        <div className="text-right" style={{ fontSize: '9px', color: '#666' }}>
+                          <p style={{ fontWeight: 'bold', margin: 0 }}>{dienst.name}</p>
+                          <p style={{ margin: 0 }}>{dienst.strasse}</p>
+                          <p style={{ margin: 0 }}>{dienst.plz}</p>
+                          <p style={{ margin: '4px 0 0 0' }}>IK: {dienst.ik}</p>
+                        </div>
                       </div>
                     </div>
-                    <p style={{ fontSize: '9px', marginTop: '6px', margin: 0 }}>
-                      <strong>Abrechnungszeitraum:</strong> {klientData.zeitraumVon} bis {klientData.zeitraumBis}
-                    </p>
-                  </div>
 
-                  <div style={{ border: '1px solid #DBEAFE', padding: '8px', marginBottom: '12px', background: '#EFF6FF' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '9px' }}>
-                      <div>
-                        <p style={{ margin: 0 }}><strong>Leistungsempfaenger:</strong></p>
-                        <p style={{ fontWeight: 'bold', margin: '2px 0' }}>{klientData.name}</p>
-                        <p style={{ margin: 0 }}>{klientAdresse}</p>
+                    <div className="mb-4" style={{ fontSize: '8px', color: '#666' }}>
+                      <p style={{ margin: 0 }}>{dienst.name}, {dienst.strasse}, {dienst.plz}</p>
+                    </div>
+
+                    <div className="mb-4">
+                      <p style={{ fontWeight: 'bold', margin: 0 }}>Bezirksamt Mitte von Berlin</p>
+                      <p style={{ margin: 0 }}>Standort Wedding</p>
+                      <p style={{ margin: 0 }}>Muellerstrasse 146 - 147</p>
+                      <p style={{ margin: 0 }}>13344 Berlin</p>
+                    </div>
+
+                    <div className="mb-4 text-right" style={{ fontSize: '9px' }}>
+                      <p style={{ margin: 0 }}>Telefon: {dienst.telefon}</p>
+                      <p style={{ margin: 0 }}>Telefax: {dienst.telefax}</p>
+                      <p style={{ margin: 0 }}>E-Mail: {dienst.email}</p>
+                      <p style={{ fontWeight: 'bold', marginTop: '4px', margin: 0 }}>Datum: Berlin, {new Date().toLocaleDateString('de-DE')}</p>
+                    </div>
+
+                    <div style={{ border: '1px solid #E5E7EB', borderRadius: '4px', padding: '8px', marginBottom: '12px', background: '#F9FAFB' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '9px' }}>
+                        <div>
+                          <p style={{ margin: 0 }}><strong>Rechnung Nr.: {rechnungsnummer}</strong></p>
+                          <p style={{ margin: 0 }}><strong>Debitor:</strong> {klientData.debitor}</p>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <p style={{ margin: 0 }}><strong>IK:</strong> {dienst.ik}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p style={{ margin: 0 }}><strong>Pflegegrad:</strong> {klientData.pflegegrad}</p>
+                      <p style={{ fontSize: '9px', marginTop: '6px', margin: 0 }}>
+                        <strong>Abrechnungszeitraum:</strong> {klientData.zeitraumVon} bis {klientData.zeitraumBis}
+                      </p>
+                    </div>
+
+                    <div style={{ border: '1px solid #DBEAFE', padding: '8px', marginBottom: '12px', background: '#EFF6FF' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '9px' }}>
+                        <div>
+                          <p style={{ margin: 0 }}><strong>Leistungsempfaenger:</strong></p>
+                          <p style={{ fontWeight: 'bold', margin: '2px 0' }}>{klientData.name}</p>
+                          <p style={{ margin: 0 }}>{klientAdresse}</p>
+                        </div>
+                        <div>
+                          <p style={{ margin: 0 }}><strong>Pflegegrad:</strong> {klientData.pflegegrad}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <table style={{ width: '100%', fontSize: '9px', marginBottom: '12px', borderCollapse: 'collapse' }}>
-                    <thead>
-                      <tr style={{ background: '#C7D2FE' }}>
-                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'left' }}>Abk.</th>
-                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'left' }}>Leistung</th>
-                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right' }}>Anzahl</th>
-                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right' }}>Einzelpreis</th>
-                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right' }}>Gesamtpreis</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {rechnung.aubPositionen.map((pos, idx) => (
-                        <tr key={`aub-${idx}`}>
-                          <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>AUB</td>
-                          <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>{pos.bezeichnung}</td>
-                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{pos.menge.toFixed(2)}</td>
-                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{pos.preis.toFixed(2)}</td>
-                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right', fontWeight: 'bold' }}>{pos.gesamt.toFixed(2)}</td>
+                    <table style={{ width: '100%', fontSize: '9px', marginBottom: '12px', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr style={{ background: '#C7D2FE' }}>
+                          <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'left' }}>Abk.</th>
+                          <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'left' }}>Leistung</th>
+                          <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right' }}>Anzahl</th>
+                          <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right' }}>Einzelpreis</th>
+                          <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right' }}>Gesamtpreis</th>
                         </tr>
-                      ))}
-                      
-                      {rechnung.allePositionen.map((pos, idx) => (
-                        <tr key={`lk-${idx}`} style={{ background: !pos.bewilligt ? '#FEF2F2' : '' }}>
-                          <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>
-                            <span style={{ textDecoration: pos.umgewandeltZu ? 'line-through' : 'none', color: pos.umgewandeltZu ? '#9CA3AF' : 'inherit' }}>
-                              {pos.lkCode}
-                            </span>
-                          </td>
-                          <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>
-                            <span style={{ textDecoration: pos.umgewandeltZu ? 'line-through' : 'none', color: pos.umgewandeltZu ? '#9CA3AF' : 'inherit' }}>
-                              {pos.lkCode} {pos.bezeichnung}
-                            </span>
-                            {pos.umgewandeltZu && (
-                              <span style={{ color: '#2563EB', marginLeft: '6px', fontWeight: 'bold', fontSize: '8px' }}>
-                                → in {pos.umgewandeltZu} umgewandelt
+                      </thead>
+                      <tbody>
+                        {rechnung.aubPositionen.map((pos, idx) => (
+                          <tr key={`aub-${idx}`}>
+                            <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>AUB</td>
+                            <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>{pos.bezeichnung}</td>
+                            <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{pos.menge.toFixed(2)}</td>
+                            <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{pos.preis.toFixed(2)}</td>
+                            <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right', fontWeight: 'bold' }}>{pos.gesamt.toFixed(2)}</td>
+                          </tr>
+                        ))}
+
+                        {rechnung.allePositionen.map((pos, idx) => (
+                          <tr key={`lk-${idx}`} style={{ background: !pos.bewilligt ? '#FEF2F2' : '' }}>
+                            <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>
+                              <span style={{ textDecoration: pos.umgewandeltZu ? 'line-through' : 'none', color: pos.umgewandeltZu ? '#9CA3AF' : 'inherit' }}>
+                                {pos.lkCode}
                               </span>
-                            )}
-                            {pos.mengeAusUmwandlung && (
-                              <span style={{ color: '#2563EB', marginLeft: '6px', fontSize: '8px' }}>
-                                (inkl. {pos.mengeAusUmwandlung} aus LK14)
+                            </td>
+                            <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>
+                              <span style={{ textDecoration: pos.umgewandeltZu ? 'line-through' : 'none', color: pos.umgewandeltZu ? '#9CA3AF' : 'inherit' }}>
+                                {pos.lkCode} {pos.bezeichnung}
                               </span>
-                            )}
-                            {!pos.bewilligt && !pos.umgewandeltZu && (
-                              <span style={{ display: 'block', color: '#DC2626', fontSize: '8px', fontStyle: 'italic', marginTop: '2px' }}>
-                                ⚠ erbracht, aktuell nicht bewilligt
+                              {pos.umgewandeltZu && (
+                                <span style={{ color: '#2563EB', marginLeft: '6px', fontWeight: 'bold', fontSize: '8px' }}>
+                                  → in {pos.umgewandeltZu} umgewandelt
+                                </span>
+                              )}
+                              {pos.mengeAusUmwandlung && (
+                                <span style={{ color: '#2563EB', marginLeft: '6px', fontSize: '8px' }}>
+                                  (inkl. {pos.mengeAusUmwandlung} aus LK14)
+                                </span>
+                              )}
+                              {!pos.bewilligt && !pos.umgewandeltZu && (
+                                <span style={{ display: 'block', color: '#DC2626', fontSize: '8px', fontStyle: 'italic', marginTop: '2px' }}>
+                                  ⚠ erbracht, aktuell nicht bewilligt
+                                </span>
+                              )}
+                              {pos.gekuerztVon && (
+                                <span style={{ display: 'block', color: '#EA580C', fontSize: '8px', fontStyle: 'italic', marginTop: '2px' }}>
+                                  ℹ gekuerzt von {pos.gekuerztVon} auf {pos.menge}
+                                </span>
+                              )}
+                            </td>
+                            <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>
+                              <span style={{ textDecoration: pos.umgewandeltZu ? 'line-through' : 'none', color: pos.umgewandeltZu ? '#9CA3AF' : 'inherit' }}>
+                                {pos.menge.toFixed(2)}
                               </span>
-                            )}
-                            {pos.gekuerztVon && (
-                              <span style={{ display: 'block', color: '#EA580C', fontSize: '8px', fontStyle: 'italic', marginTop: '2px' }}>
-                                ℹ gekuerzt von {pos.gekuerztVon} auf {pos.menge}
+                            </td>
+                            <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>
+                              <span style={{ textDecoration: pos.umgewandeltZu ? 'line-through' : 'none', color: pos.umgewandeltZu ? '#9CA3AF' : 'inherit' }}>
+                                {pos.preis.toFixed(2)}
                               </span>
-                            )}
-                          </td>
-                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>
-                            <span style={{ textDecoration: pos.umgewandeltZu ? 'line-through' : 'none', color: pos.umgewandeltZu ? '#9CA3AF' : 'inherit' }}>
-                              {pos.menge.toFixed(2)}
-                            </span>
-                          </td>
-                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>
-                            <span style={{ textDecoration: pos.umgewandeltZu ? 'line-through' : 'none', color: pos.umgewandeltZu ? '#9CA3AF' : 'inherit' }}>
-                              {pos.preis.toFixed(2)}
-                            </span>
-                          </td>
-                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>
-                            {pos.bewilligt ? (
-                              <span style={{ fontWeight: 'bold' }}>{pos.gesamt.toFixed(2)}</span>
-                            ) : (
-                              <span style={{ color: '#9CA3AF' }}>0,00</span>
-                            )}
-                          </td>
+                            </td>
+                            <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>
+                              {pos.bewilligt ? (
+                                <span style={{ fontWeight: 'bold' }}>{pos.gesamt.toFixed(2)}</span>
+                              ) : (
+                                <span style={{ color: '#9CA3AF' }}>0,00</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+
+                        <tr style={{ background: '#E5E7EB', fontWeight: 'bold' }}>
+                          <td colSpan={4} style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>Zwischensumme:</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{rechnung.zwischensumme.toFixed(2)}</td>
                         </tr>
-                      ))}
-                      
-                      <tr style={{ background: '#E5E7EB', fontWeight: 'bold' }}>
-                        <td colSpan={4} style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>Zwischensumme:</td>
-                        <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{rechnung.zwischensumme.toFixed(2)}</td>
-                      </tr>
-                      <tr>
-                        <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>ZINV</td>
-                        <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>Investitionskosten 3,38%</td>
-                        <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>1,00</td>
-                        <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{rechnung.zinv.toFixed(2)}</td>
-                        <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right', fontWeight: 'bold' }}>{rechnung.zinv.toFixed(2)}</td>
-                      </tr>
-                      <tr style={{ background: '#E5E7EB', fontWeight: 'bold' }}>
-                        <td colSpan={4} style={{ padding: '4px', textAlign: 'right' }}>Gesamtbetrag:</td>
-                        <td style={{ padding: '4px', textAlign: 'right' }}>{rechnung.gesamtbetrag.toFixed(2)}</td>
-                      </tr>
-                      <tr>
-                        <td colSpan={4} style={{ padding: '4px', textAlign: 'right' }}>./. Anteil Pflegekasse:</td>
-                        <td style={{ padding: '4px', textAlign: 'right' }}>{pflegekassenBetrag.toFixed(2)}</td>
-                      </tr>
-                      <tr style={{ background: '#C7D2FE', fontWeight: 'bold', fontSize: '11px' }}>
-                        <td colSpan={4} style={{ padding: '6px 4px', textAlign: 'right' }}>Rechnungsbetrag:</td>
-                        <td style={{ padding: '6px 4px', textAlign: 'right', color: '#4F46E5' }}>{rechnung.rechnungsbetragBA.toFixed(2)}</td>
-                      </tr>
-                    </tbody>
-                  </table>
+                        <tr>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>ZINV</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>Investitionskosten 3,38%</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>1,00</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{rechnung.zinv.toFixed(2)}</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right', fontWeight: 'bold' }}>{rechnung.zinv.toFixed(2)}</td>
+                        </tr>
+                        <tr style={{ background: '#E5E7EB', fontWeight: 'bold' }}>
+                          <td colSpan={4} style={{ padding: '4px', textAlign: 'right' }}>Gesamtbetrag:</td>
+                          <td style={{ padding: '4px', textAlign: 'right' }}>{rechnung.gesamtbetrag.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                          <td colSpan={4} style={{ padding: '4px', textAlign: 'right' }}>./. Anteil Pflegekasse:</td>
+                          <td style={{ padding: '4px', textAlign: 'right' }}>{pflegekassenBetrag.toFixed(2)}</td>
+                        </tr>
+                        <tr style={{ background: '#C7D2FE', fontWeight: 'bold', fontSize: '11px' }}>
+                          <td colSpan={4} style={{ padding: '6px 4px', textAlign: 'right' }}>Rechnungsbetrag:</td>
+                          <td style={{ padding: '6px 4px', textAlign: 'right', color: '#4F46E5' }}>{rechnung.rechnungsbetragBA.toFixed(2)}</td>
+                        </tr>
+                      </tbody>
+                    </table>
 
-                  <div style={{ background: '#FEF3C7', borderLeft: '3px solid #F59E0B', padding: '8px', marginBottom: '12px', fontSize: '8px' }}>
-                    <p style={{ fontWeight: 'bold', margin: '0 0 4px 0' }}>Hinweis:</p>
-                    <p style={{ margin: 0 }}>Positionen mit "erbracht, aktuell nicht bewilligt" wurden dokumentarisch aufgefuehrt, fliessen jedoch nicht in die Rechnungssumme ein.</p>
-                  </div>
+                    <div style={{ background: '#FEF3C7', borderLeft: '3px solid #F59E0B', padding: '8px', marginBottom: '12px', fontSize: '8px' }}>
+                      <p style={{ fontWeight: 'bold', margin: '0 0 4px 0' }}>Hinweis:</p>
+                      <p style={{ margin: 0 }}>Positionen mit "erbracht, aktuell nicht bewilligt" wurden dokumentarisch aufgefuehrt, fliessen jedoch nicht in die Rechnungssumme ein.</p>
+                    </div>
 
-                  <p style={{ fontSize: '9px', marginTop: '12px', margin: 0 }}>Zahlbar bis zum {new Date(Date.now() + 30*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
-                  <p style={{ fontSize: '9px', margin: 0 }}>Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
+                    <p style={{ fontSize: '9px', marginTop: '12px', margin: 0 }}>Zahlbar bis zum {new Date(Date.now() + 30*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
+                    <p style={{ fontSize: '9px', margin: 0 }}>Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
 
-                  <div style={{ borderTop: '2px solid #4F46E5', marginTop: '16px', paddingTop: '8px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <img src={logoUrl} alt="DomusVita Logo" style={{ height: '40px', width: 'auto', opacity: 0.5 }} />
-                      <div style={{ fontSize: '8px', color: '#666', textAlign: 'right' }}>
-                        <p style={{ fontWeight: 'bold', margin: 0 }}>{dienst.name}</p>
-                        <p style={{ margin: 0 }}>{dienst.strasse} • {dienst.plz}</p>
-                        <p style={{ margin: 0 }}>Tel: {dienst.telefon} • {dienst.email}</p>
-                        <p style={{ margin: 0 }}>IBAN: {dienst.iban} • BIC: {dienst.bic}</p>
+                    <div style={{ borderTop: '2px solid #4F46E5', marginTop: '16px', paddingTop: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <img src={logoUrl} alt="DomusVita Logo" style={{ height: '40px', width: 'auto', opacity: 0.5 }} />
+                        <div style={{ fontSize: '8px', color: '#666', textAlign: 'right' }}>
+                          <p style={{ fontWeight: 'bold', margin: 0 }}>{dienst.name}</p>
+                          <p style={{ margin: 0 }}>{dienst.strasse} • {dienst.plz}</p>
+                          <p style={{ margin: 0 }}>Tel: {dienst.telefon} • {dienst.email}</p>
+                          <p style={{ margin: 0 }}>IBAN: {dienst.iban} • BIC: {dienst.bic}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
