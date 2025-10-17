@@ -1486,18 +1486,17 @@ export default function Home() {
                       <p style={{ margin: 0 }}>Positionen mit "erbracht, aktuell nicht bewilligt" wurden dokumentarisch aufgefuehrt, fliessen jedoch nicht in die Rechnungssumme ein.</p>
                     </div>
 
-                    <p style={{ fontSize: '9px', marginTop: '12px', margin: 0 }}>Zahlbar bis zum {new Date(Date.now() + 30*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
+                    <p style={{ fontSize: '9px', marginTop: '12px', margin: '4px 0' }}><strong>Leistungsgrundlage:</strong> SGB XI §36</p>
+                    <p style={{ fontSize: '9px', margin: 0 }}>Zahlbar bis zum {new Date(Date.now() + 30*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
                     <p style={{ fontSize: '9px', margin: 0 }}>Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
 
                     <div style={{ borderTop: '2px solid #4F46E5', marginTop: '16px', paddingTop: '8px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <img src={logoUrl} alt="DomusVita Logo" style={{ height: '40px', width: 'auto', opacity: 0.5 }} />
-                        <div style={{ fontSize: '8px', color: '#666', textAlign: 'right' }}>
-                          <p style={{ fontWeight: 'bold', margin: 0 }}>{dienst.name}</p>
-                          <p style={{ margin: 0 }}>{dienst.strasse} • {dienst.plz}</p>
-                          <p style={{ margin: 0 }}>Tel: {dienst.telefon} • {dienst.email}</p>
-                          <p style={{ margin: 0 }}>IBAN: {dienst.iban} • BIC: {dienst.bic}</p>
-                        </div>
+                      <div style={{ fontSize: '7px', color: '#666', textAlign: 'center', lineHeight: '1.6' }}>
+                        <p style={{ margin: '2px 0', fontWeight: 'bold' }}>Sitz der Gesellschaft: DomusVita Gesundheit GmbH • Waldemarstrasse 10 A • 10999 Berlin</p>
+                        <p style={{ margin: '2px 0' }}>Telefon: 030/6120152-0 • Telefax: 030/6120152-10 • E-Mail: kreuzberg@domusvita.de • www.domusvita.de</p>
+                        <p style={{ margin: '2px 0' }}>Geschäftsführer: Lukas Dahrendorf • Alexander Ebel</p>
+                        <p style={{ margin: '2px 0' }}>Bankverbindung: DE53100500000190998890 • BIC: BELADEBEXXX • Berliner Sparkasse</p>
+                        <p style={{ margin: '2px 0' }}>AG Berlin Charlottenburg • HRB 87436 B • Steuernummer: 29/582/51396</p>
                       </div>
                     </div>
                   </div>
@@ -1605,17 +1604,17 @@ export default function Home() {
                     <p style={{ margin: 0 }}>Die aufgefuehrten Leistungen wurden von Ihrer Pflegekasse bzw. dem Bezirksamt nicht bewilligt oder ueberschreiten die genehmigte Menge.</p>
                   </div>
 
-                  <p style={{ fontSize: '9px', marginTop: '12px', margin: 0 }}>Zahlbar bis zum {new Date(Date.now() + 14*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
+                  <p style={{ fontSize: '9px', marginTop: '12px', margin: '4px 0' }}><strong>Leistungsgrundlage:</strong> SGB XI §36</p>
+                  <p style={{ fontSize: '9px', margin: 0 }}>Zahlbar bis zum {new Date(Date.now() + 14*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
                   <p style={{ fontSize: '9px', margin: 0 }}>Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
 
                   <div style={{ borderTop: '2px solid #EA580C', marginTop: '16px', paddingTop: '8px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <img src={logoUrl} alt="DomusVita Logo" style={{ height: '40px', width: 'auto', opacity: 0.5 }} />
-                      <div style={{ fontSize: '8px', color: '#666', textAlign: 'right' }}>
-                        <p style={{ fontWeight: 'bold', margin: 0 }}>{dienst.name}</p>
-                        <p style={{ margin: 0 }}>{dienst.strasse} • {dienst.plz}</p>
-                        <p style={{ margin: 0 }}>IBAN: {dienst.iban} • BIC: {dienst.bic}</p>
-                      </div>
+                    <div style={{ fontSize: '7px', color: '#666', textAlign: 'center', lineHeight: '1.6' }}>
+                      <p style={{ margin: '2px 0', fontWeight: 'bold' }}>Sitz der Gesellschaft: DomusVita Gesundheit GmbH • Waldemarstrasse 10 A • 10999 Berlin</p>
+                      <p style={{ margin: '2px 0' }}>Telefon: 030/6120152-0 • Telefax: 030/6120152-10 • E-Mail: kreuzberg@domusvita.de • www.domusvita.de</p>
+                      <p style={{ margin: '2px 0' }}>Geschäftsführer: Lukas Dahrendorf • Alexander Ebel</p>
+                      <p style={{ margin: '2px 0' }}>Bankverbindung: DE53100500000190998890 • BIC: BELADEBEXXX • Berliner Sparkasse</p>
+                      <p style={{ margin: '2px 0' }}>AG Berlin Charlottenburg • HRB 87436 B • Steuernummer: 29/582/51396</p>
                     </div>
                   </div>
                 </div>
