@@ -15,7 +15,6 @@ interface KlientData {
   zeitraumBis: string;
   geburtsdatum: string;
   pflegegrad: number;
-  versichertenNr: string;
   debitor: string;
   belegNr: string;
   genehmigungsDatum: string;
@@ -55,7 +54,7 @@ const PFLEGEDIENSTE: { [key: string]: PflegedienstData } = {
     name: 'DomusVita Gesundheit GmbH',
     strasse: 'Waldemarstr. 10 A',
     plz: '10999 Berlin',
-    ik: '461104096',
+    ik: '461104151',
     iban: 'DE53100500000190998890',
     bic: 'BELADEBEXXX',
     bank: 'Berliner Sparkasse',
@@ -65,10 +64,10 @@ const PFLEGEDIENSTE: { [key: string]: PflegedienstData } = {
     email: 'kreuzberg@domusvita.de'
   },
   'treptow': {
-    name: 'DomusVita Gesundheit GmbH',
-    strasse: 'Hoffmannstr. 15',
-    plz: '12435 Berlin',
-    ik: '461104151',
+    name: 'DomusVita Pflegedienst gGmbH',
+    strasse: 'Baumschulenstr. 24',
+    plz: '12437 Berlin',
+    ik: '461104096',
     iban: 'DE53100500000190998890',
     bic: 'BELADEBEXXX',
     bank: 'Berliner Sparkasse',
@@ -132,7 +131,6 @@ export default function Home() {
     zeitraumBis: '',
     geburtsdatum: '',
     pflegegrad: 3,
-    versichertenNr: '',
     debitor: '62202',
     belegNr: '13400',
     genehmigungsDatum: '06.01.2025',
@@ -648,16 +646,7 @@ export default function Home() {
               </select>
             </div>
             
-            <div>
-              <label className="text-gray-600 block mb-1">Versicherten-Nr.:</label>
-              <input
-                type="text"
-                placeholder="z.B. 12345678"
-                value={klientData.versichertenNr}
-                onChange={(e) => updateKlientData('versichertenNr', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -1263,9 +1252,11 @@ export default function Home() {
         )}
 
         {showPdfPreview && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-            <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto my-8">
-              <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center z-10">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto print:bg-white print:relative print:block">
+            <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto my-8 print:max-w-none print:m-0 print:shadow-none print:rounded-none">
+              <div className="p-8">
+                <div className="p-8 print:p-0">
+                <div className="bg-white print:min-h-[297mm]" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px', lineHeight: '1.4', padding: '10mm' }}>
                 <h3 className="text-xl font-bold text-gray-800">Korrekturrechnung BA</h3>
                 <button 
                   onClick={() => setShowPdfPreview(false)}
@@ -1333,7 +1324,6 @@ export default function Home() {
                       </div>
                       <div>
                         <p style={{ margin: 0 }}><strong>Pflegegrad:</strong> {klientData.pflegegrad}</p>
-                        <p style={{ margin: 0 }}><strong>Versicherten-Nr.:</strong> {klientData.versichertenNr}</p>
                       </div>
                     </div>
                   </div>
