@@ -607,7 +607,8 @@ export default function Home() {
   const rechnung = berechneRechnungFuerAnzeige();
 
   return (
-    <><div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 p-8">
+    <>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 p-8">
       <div className="max-w-6xl mx-auto">
         <div className="bg-white rounded-2xl shadow-2xl p-8 mb-6 print:hidden">
           <div className="flex items-center justify-between">
@@ -649,11 +650,10 @@ export default function Home() {
             </p>
           </div>
         </div>
-      </div>
-    </div><div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-        <h3 className="text-lg font-semibold text-blue-900 mb-4">
-          Schritt 1: Grunddaten
-        </h3>
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+          <h3 className="text-lg font-semibold text-blue-900 mb-4">
+            Schritt 1: Grunddaten
+          </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
           <div>
@@ -734,10 +734,11 @@ export default function Home() {
             Klientenadresse: {klientAdresse}
           </p>
         </div>
-      </div><div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-        <h3 className="text-lg font-semibold text-green-900 mb-4">
-          Schritt 2: Bewilligte Leistungen
-        </h3>
+        </div>
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+          <h3 className="text-lg font-semibold text-green-900 mb-4">
+            Schritt 2: Bewilligte Leistungen
+          </h3>
 
         <div className="mb-6">
           <p className="text-sm text-gray-600 mb-3">
@@ -884,7 +885,7 @@ export default function Home() {
             </div>
           )}
         </div>
-      </div></>
+        </div>
 
         {bewilligung.length > 0 && (
           <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
@@ -1624,5 +1625,6 @@ export default function Home() {
         )}
       </div>
     </div>
+    </>
   );
 }
