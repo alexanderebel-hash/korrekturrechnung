@@ -472,7 +472,7 @@ export default function Home() {
       zinvPrivat,
       gesamtbetragPrivat,
       anzahlBewilligt: bewilligtePositionen.length,
-      anzahlNichtBewilligt: nichtBewilligtePositionen.length
+      anzahlNichtBewilligt: nichtBewilligtePositionen.length,
       gesamtPrivatLK,
       gesamtPrivatAUB 
     };
