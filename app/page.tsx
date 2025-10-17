@@ -473,6 +473,8 @@ export default function Home() {
       gesamtbetragPrivat,
       anzahlBewilligt: bewilligtePositionen.length,
       anzahlNichtBewilligt: nichtBewilligtePositionen.length
+      gesamtPrivatLK,
+      gesamtPrivatAUB 
     };
   };
 
