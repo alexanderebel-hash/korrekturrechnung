@@ -1,49 +1,41 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
 @media print {
+  /* Page Setup */
   @page {
-    margin: 10mm;
+    margin: 1.5cm;
     size: A4 portrait;
   }
   
-  body {
-    margin: 0;
-    padding: 0;
-  }
-  
-  /* Verstecke ALLES beim Drucken */
-  body > * {
+  /* Nur beim Drucken: Verstecke die Modal-Controls */
+  .sticky.top-0 {
     display: none !important;
   }
   
-  /* Zeige NUR die PDF-Vorschau */
-  .fixed {
-    display: block !important;
-    position: relative !important;
-    background: white !important;
-  }
-  
-  /* Verstecke Buttons, Modals und UI-Elemente */
+  /* Buttons beim Drucken verstecken */
   button,
-  .sticky,
-  [class*="bg-indigo-"],
-  [class*="bg-blue-"],
-  [class*="bg-orange-"],
-  [class*="bg-red-"],
-  [class*="bg-gray-"],
-  [class*="bg-purple-"],
-  [class*="bg-green-"],
-  [class*="bg-pink-"],
-  [class*="rounded-"],
-  [class*="shadow-"] {
+  .bg-indigo-600,
+  .bg-blue-600,
+  .bg-orange-600,
+  .bg-red-600 {
     display: none !important;
   }
-  
-  /* Zeige nur den Rechnungs-Inhalt */
-  .bg-white[style*="font-family: Arial"] {
-    display: block !important;
-  }
-  
-  * {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
 }
