@@ -1326,14 +1326,14 @@ export default function Home() {
                       margin-right: 1.25cm;
                       margin-bottom: 2.54cm;
                     }
-                    body { font-size: 12px; }
+                    body { font-size: 14px; }
                   }
                 `}} />
                 <div
                   className="bg-white"
-                  style={{ fontFamily: 'Arial, sans-serif', fontSize: '12px', lineHeight: '1.4' }}
+                  style={{ fontFamily: 'Arial, sans-serif', fontSize: '14px', lineHeight: '1.4' }}
                 >
-                  <div className="bg-white" style={{ fontFamily: 'Arial, sans-serif', fontSize: '12px', lineHeight: '1.4' }}>
+                  <div className="bg-white" style={{ fontFamily: 'Arial, sans-serif', fontSize: '14px', lineHeight: '1.4' }}>
                     <div className="mb-6">
                       <div className="flex items-start justify-between mb-4 pb-3" style={{ borderBottom: '2px solid #4F46E5' }}>
                         <div className="flex-1">
@@ -1542,10 +1542,10 @@ export default function Home() {
                       margin-right: 1.25cm;
                       margin-bottom: 2.54cm;
                     }
-                    body { font-size: 12px; }
+                    body { font-size: 14px; }
                   }
                 `}} />
-                <div className="bg-white" style={{ fontFamily: 'Arial, sans-serif', fontSize: '12px', lineHeight: '1.4' }}>
+                <div className="bg-white" style={{ fontFamily: 'Arial, sans-serif', fontSize: '14px', lineHeight: '1.4' }}>
                   <div className="mb-6">
                     <div className="flex items-start justify-between mb-4 pb-3" style={{ borderBottom: '2px solid #EA580C' }}>
                       <div className="flex-1">
