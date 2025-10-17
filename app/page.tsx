@@ -639,7 +639,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-6 print:hidden">
           <img src={logoUrl} alt="DomusVita Logo" className="h-20 w-auto" />
           <div>
             <h1 className="text-4xl font-bold text-indigo-600 mb-2">
@@ -650,7 +650,7 @@ export default function Home() {
             </p>
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-6 print:hidden">
           <h3 className="text-lg font-semibold text-blue-900 mb-4">
             Schritt 1: Grunddaten
           </h3>
@@ -735,7 +735,7 @@ export default function Home() {
           </p>
         </div>
         </div>
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-6 print:hidden">
           <h3 className="text-lg font-semibold text-green-900 mb-4">
             Schritt 2: Bewilligte Leistungen
           </h3>
@@ -888,7 +888,7 @@ export default function Home() {
         </div>
 
         {bewilligung.length > 0 && (
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 print:hidden">
             <p className="text-green-800 text-sm">
               <strong>{bewilligung.length} Leistungen erfasst!</strong> Bereit fuer Schritt 3.
             </p>
@@ -896,7 +896,7 @@ export default function Home() {
         )}
 
         {bewilligung.length > 0 && (
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6 print:hidden">
             <h3 className="text-lg font-semibold text-purple-900 mb-4">
               Schritt 3: Medifox-Rechnung (Originalrechnung)
             </h3>
@@ -1050,7 +1050,7 @@ export default function Home() {
 
         {rechnungPositionen.filter(p => p.menge > 0).length > 0 && (
           <>
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-lg p-6 mb-6 border-2 border-purple-200">
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-lg p-6 mb-6 border-2 border-purple-200 print:hidden">
               <h3 className="text-lg font-semibold text-purple-900 mb-4 flex items-center gap-2">
                 <span>📊</span> Theoretische Gesamtrechnung (alle Positionen)
               </h3>
@@ -1088,7 +1088,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div className="bg-white rounded-xl shadow-lg p-6 mb-6 print:hidden">
               <h3 className="text-lg font-semibold text-indigo-900 mb-4">
                 Korrekturrechnung - Tatsächliche Abrechnung
               </h3>
