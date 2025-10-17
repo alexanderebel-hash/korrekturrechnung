@@ -36,6 +36,54 @@ interface RechnungsPosition {
   mengeAusUmwandlung?: number;
 }
 
+interface PflegedienstData {
+  name: string;
+  strasse: string;
+  plz: string;
+  ik: string;
+  iban: string;
+  bic: string;
+  bank: string;
+  hrb: string;
+  telefon: string;
+  telefax: string;
+  email: string;
+}
+
+const PFLEGEDIENSTE: { [key: string]: PflegedienstData } = {
+  'kreuzberg': {
+    name: 'DomusVita Gesundheit GmbH',
+    strasse: 'Waldemarstr. 10 A',
+    plz: '10999 Berlin',
+    ik: '461104096',
+    iban: 'DE53100500000190998890',
+    bic: 'BELADEBEXXX',
+    bank: 'Berliner Sparkasse',
+    hrb: 'HRB 87436 B',
+    telefon: '030/6120152-0',
+    telefax: '030/6120152-10',
+    email: 'kreuzberg@domusvita.de'
+  },
+  'treptow': {
+    name: 'DomusVita Gesundheit GmbH',
+    strasse: 'Hoffmannstr. 15',
+    plz: '12435 Berlin',
+    ik: '461104151',
+    iban: 'DE53100500000190998890',
+    bic: 'BELADEBEXXX',
+    bank: 'Berliner Sparkasse',
+    hrb: 'HRB 87436 B',
+    telefon: '030/53695290',
+    telefax: '030/536952929',
+    email: 'treptow@domusvita.de'
+  }
+};
+
+const WOHNHEIME: { [key: string]: string } = {
+  'hebron': 'Hartriegelstr. 132, 12439 Berlin',
+  'siefos': 'Waldemarstr. 10a, 10999 Berlin'
+};
+
 const LK_PREISE: { [key: string]: { bezeichnung: string; preis: number; aubPreis: number } } = {
   'LK01': { bezeichnung: 'Erweiterte kleine Koerperpflege', preis: 25.52, aubPreis: 0.84 },
   'LK02': { bezeichnung: 'Kleine Koerperpflege', preis: 17.01, aubPreis: 0.39 },
@@ -75,6 +123,9 @@ const PFLEGEGRAD_SACHLEISTUNG: { [key: number]: number } = {
 export default function Home() {
   const logoUrl = '/logo.png';
   
+  const [pflegedienstKey, setPflegedienstKey] = useState<string>('kreuzberg');
+  const [wohnheimKey, setWohnheimKey] = useState<string>('hebron');
+  
   const [klientData, setKlientData] = useState<KlientData>({
     name: '',
     zeitraumVon: '',
@@ -87,6 +138,10 @@ export default function Home() {
     genehmigungsDatum: '06.01.2025',
     genehmigungsNr: 'S0131070040738'
   });
+  
+  const dienst = PFLEGEDIENSTE[pflegedienstKey];
+  const klientAdresse = WOHNHEIME[wohnheimKey];
+  
   const [bewilligung, setBewilligung] = useState<BewilligungRow[]>([]);
   const [excelFile, setExcelFile] = useState<File | null>(null);
   const [medifoxPdf, setMedifoxPdf] = useState<File | null>(null);
@@ -101,6 +156,12 @@ export default function Home() {
   const [rechnungsnummer, setRechnungsnummer] = useState('');
   const [actionType, setActionType] = useState<'print' | 'download'>('print');
   const [pdfType, setPdfType] = useState<'ba' | 'privat'>('ba');
+  
+  const handleNeueRechnung = () => {
+    if (window.confirm('Sind Sie sicher, dass Sie eine neue Korrekturrechnung erstellen möchten? Alle aktuellen Daten gehen verloren.')) {
+      window.location.reload();
+    }
+  };
 
   const processExcelFile = async (file: File) => {
     setIsProcessing(true);
@@ -507,15 +568,6 @@ export default function Home() {
     }
   };
 
-  const handleDownloadPDF = () => {
-    window.print();
-  };
-
-  const handleKorrekturSenden = () => {
-    alert(`Korrekturanfrage: ${korrekturAnfrage}`);
-    setKorrekturAnfrage('');
-  };
-
   const theoretisch = berechneTheoretischeRechnung();
   const korrektur = berechneKorrekturrechnung();
   const rechnung = berechneRechnungFuerAnzeige();
@@ -541,12 +593,38 @@ export default function Home() {
 
         <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
           <h3 className="text-lg font-semibold text-blue-900 mb-4">
-            Schritt 1: Klientendaten eingeben
+            Schritt 1: Grunddaten
           </h3>
           
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
+            <div>
+              <label className="text-gray-600 block mb-1 font-medium">Pflegedienst auswählen:</label>
+              <select
+                value={pflegedienstKey}
+                onChange={(e) => setPflegedienstKey(e.target.value)}
+                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="kreuzberg">Kreuzberg - Waldemarstr. 10 A</option>
+                <option value="treptow">Treptow - Hoffmannstr. 15</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="text-gray-600 block mb-1 font-medium">Wohnheim Standort auswählen:</label>
+              <select
+                value={wohnheimKey}
+                onChange={(e) => setWohnheimKey(e.target.value)}
+                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="hebron">Haus Hebron - Hartriegelstr. 132</option>
+                <option value="siefos">Siefos - Waldemarstr. 10a</option>
+              </select>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-4">
             <div>
-              <label className="text-gray-600 block mb-1">Name:</label>
+              <label className="text-gray-600 block mb-1">Name Klient:</label>
               <input
                 type="text"
                 placeholder="z.B. Tschida, Klaus"
@@ -555,16 +633,7 @@ export default function Home() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div>
-              <label className="text-gray-600 block mb-1">Geburtsdatum:</label>
-              <input
-                type="text"
-                placeholder="25.06.1941"
-                value={klientData.geburtsdatum}
-                onChange={(e) => updateKlientData('geburtsdatum', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            
             <div>
               <label className="text-gray-600 block mb-1">Pflegegrad:</label>
               <select
@@ -578,29 +647,45 @@ export default function Home() {
                 <option value={5}>Pflegegrad 5</option>
               </select>
             </div>
+            
+            <div>
+              <label className="text-gray-600 block mb-1">Versicherten-Nr.:</label>
+              <input
+                type="text"
+                placeholder="z.B. 12345678"
+                value={klientData.versichertenNr}
+                onChange={(e) => updateKlientData('versichertenNr', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
-              <label className="text-gray-600 block mb-1">Zeitraum Von:</label>
+              <label className="text-gray-600 block mb-1">Abrechnungszeitraum Von:</label>
               <input
-                type="text"
-                placeholder="01.09.2025"
+                type="date"
                 value={klientData.zeitraumVon}
                 onChange={(e) => updateKlientData('zeitraumVon', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
-              <label className="text-gray-600 block mb-1">Zeitraum Bis:</label>
+              <label className="text-gray-600 block mb-1">Abrechnungszeitraum Bis:</label>
               <input
-                type="text"
-                placeholder="30.09.2025"
+                type="date"
                 value={klientData.zeitraumBis}
                 onChange={(e) => updateKlientData('zeitraumBis', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
+          </div>
+          
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-xs text-blue-800">
+              <strong>Automatisch gesetzt:</strong> Pflegedienst: {dienst.name}, {dienst.strasse} | 
+              Klientenadresse: {klientAdresse}
+            </p>
           </div>
         </div>
 
@@ -1091,7 +1176,7 @@ export default function Home() {
                     </span>
                   </div>
                 </div>
-              </div>
+                </div>
 
               <div className="mt-6 space-y-4">
                 <div className="border-t pt-4">
@@ -1128,6 +1213,15 @@ export default function Home() {
                       💾 Als PDF speichern
                     </button>
                   </div>
+                </div>
+                
+                <div className="border-t pt-4">
+                  <button
+                    onClick={handleNeueRechnung}
+                    className="w-full bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 font-medium"
+                  >
+                    🔄 Neue Korrekturrechnung erstellen
+                  </button>
                 </div>
               </div>
             </div>
@@ -1182,184 +1276,183 @@ export default function Home() {
               </div>
 
               <div className="p-8">
-                <div className="border-2 border-gray-300 p-8 bg-white" style={{ fontFamily: 'Arial, sans-serif' }}>
-                  <div className="mb-8">
-                    <div className="flex items-center justify-between mb-6 border-b-2 border-indigo-600 pb-4">
-                      <div className="flex-1">
-                        <img src={logoUrl} alt="DomusVita Logo" className="h-24 w-auto" />
-                      </div>
-                      <div className="text-right text-xs text-gray-600">
-                        <p className="font-semibold">DomusVita Gesundheit GmbH</p>
-                        <p>Waldemarstr. 10 A</p>
-                        <p>10999 Berlin</p>
-                        <p className="mt-2">IK: 461104096</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mb-6 text-xs text-gray-600">
-                    <p>DomusVita Gesundheit GmbH, Waldemarstr. 10 A, 10999 Berlin</p>
-                  </div>
-
+                <div className="bg-white" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px', lineHeight: '1.4' }}>
                   <div className="mb-6">
-                    <p className="text-sm font-bold">Bezirksamt Mitte von Berlin</p>
-                    <p className="text-sm">Standort Wedding</p>
-                    <p className="text-sm">Muellerstrasse 146 - 147</p>
-                    <p className="text-sm">13344 Berlin</p>
-                  </div>
-
-                  <div className="mb-6 text-right text-xs">
-                    <p>Telefon: 030/6120152-0</p>
-                    <p>Telefax: 030/6120152-10</p>
-                    <p>E-Mail: kreuzberg@domusvita.de</p>
-                    <p className="font-semibold mt-2">Datum: Berlin, {new Date().toLocaleDateString('de-DE')}</p>
-                  </div>
-
-                  <div className="border-t border-b py-2 mb-4 bg-gray-50">
-                    <div className="grid grid-cols-2 gap-4 text-xs">
-                      <div>
-                        <p><strong>Rechnung Nr.: {rechnungsnummer}</strong></p>
-                        <p><strong>Debitor:</strong> {klientData.debitor}</p>
+                    <div className="flex items-start justify-between mb-4 pb-3" style={{ borderBottom: '2px solid #4F46E5' }}>
+                      <div className="flex-1">
+                        <img src={logoUrl} alt="DomusVita Logo" style={{ height: '60px', width: 'auto' }} />
                       </div>
-                      <div className="text-right">
-                        <p><strong>IK:</strong> 461104096</p>
+                      <div className="text-right" style={{ fontSize: '9px', color: '#666' }}>
+                        <p style={{ fontWeight: 'bold', margin: 0 }}>{dienst.name}</p>
+                        <p style={{ margin: 0 }}>{dienst.strasse}</p>
+                        <p style={{ margin: 0 }}>{dienst.plz}</p>
+                        <p style={{ margin: '4px 0 0 0' }}>IK: {dienst.ik}</p>
                       </div>
                     </div>
-                    <p className="text-xs mt-2">
+                  </div>
+
+                  <div className="mb-4" style={{ fontSize: '8px', color: '#666' }}>
+                    <p style={{ margin: 0 }}>{dienst.name}, {dienst.strasse}, {dienst.plz}</p>
+                  </div>
+
+                  <div className="mb-4">
+                    <p style={{ fontWeight: 'bold', margin: 0 }}>Bezirksamt Mitte von Berlin</p>
+                    <p style={{ margin: 0 }}>Standort Wedding</p>
+                    <p style={{ margin: 0 }}>Muellerstrasse 146 - 147</p>
+                    <p style={{ margin: 0 }}>13344 Berlin</p>
+                  </div>
+
+                  <div className="mb-4 text-right" style={{ fontSize: '9px' }}>
+                    <p style={{ margin: 0 }}>Telefon: {dienst.telefon}</p>
+                    <p style={{ margin: 0 }}>Telefax: {dienst.telefax}</p>
+                    <p style={{ margin: 0 }}>E-Mail: {dienst.email}</p>
+                    <p style={{ fontWeight: 'bold', marginTop: '4px', margin: 0 }}>Datum: Berlin, {new Date().toLocaleDateString('de-DE')}</p>
+                  </div>
+
+                  <div style={{ border: '1px solid #E5E7EB', borderRadius: '4px', padding: '8px', marginBottom: '12px', background: '#F9FAFB' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '9px' }}>
+                      <div>
+                        <p style={{ margin: 0 }}><strong>Rechnung Nr.: {rechnungsnummer}</strong></p>
+                        <p style={{ margin: 0 }}><strong>Debitor:</strong> {klientData.debitor}</p>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <p style={{ margin: 0 }}><strong>IK:</strong> {dienst.ik}</p>
+                      </div>
+                    </div>
+                    <p style={{ fontSize: '9px', marginTop: '6px', margin: 0 }}>
                       <strong>Abrechnungszeitraum:</strong> {klientData.zeitraumVon} bis {klientData.zeitraumBis}
                     </p>
                   </div>
 
-                  <div className="border p-3 mb-4 text-xs bg-blue-50">
-                    <div className="grid grid-cols-2 gap-4">
+                  <div style={{ border: '1px solid #DBEAFE', padding: '8px', marginBottom: '12px', background: '#EFF6FF' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '9px' }}>
                       <div>
-                        <p><strong>Leistungsempfaenger:</strong></p>
-                        <p className="font-semibold">{klientData.name}</p>
-                        <p>10999 Berlin</p>
+                        <p style={{ margin: 0 }}><strong>Leistungsempfaenger:</strong></p>
+                        <p style={{ fontWeight: 'bold', margin: '2px 0' }}>{klientData.name}</p>
+                        <p style={{ margin: 0 }}>{klientAdresse}</p>
                       </div>
                       <div>
-                        <p><strong>Geburtsdatum:</strong> {klientData.geburtsdatum}</p>
-                        <p><strong>Pflegegrad:</strong> {klientData.pflegegrad}</p>
-                        <p><strong>Versicherten-Nr.:</strong> {klientData.versichertenNr}</p>
+                        <p style={{ margin: 0 }}><strong>Pflegegrad:</strong> {klientData.pflegegrad}</p>
+                        <p style={{ margin: 0 }}><strong>Versicherten-Nr.:</strong> {klientData.versichertenNr}</p>
                       </div>
                     </div>
                   </div>
 
-                  <table className="w-full text-xs mb-4 border-collapse">
+                  <table style={{ width: '100%', fontSize: '9px', marginBottom: '12px', borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr className="bg-indigo-100">
-                        <th className="border px-2 py-1 text-left">Abk.</th>
-                        <th className="border px-2 py-1 text-left">Leistung</th>
-                        <th className="border px-2 py-1 text-right">Anzahl</th>
-                        <th className="border px-2 py-1 text-right">Einzelpreis</th>
-                        <th className="border px-2 py-1 text-right">Gesamtpreis</th>
+                      <tr style={{ background: '#C7D2FE' }}>
+                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'left' }}>Abk.</th>
+                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'left' }}>Leistung</th>
+                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right' }}>Anzahl</th>
+                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right' }}>Einzelpreis</th>
+                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right' }}>Gesamtpreis</th>
                       </tr>
                     </thead>
                     <tbody>
                       {rechnung.aubPositionen.map((pos, idx) => (
                         <tr key={`aub-${idx}`}>
-                          <td className="border px-2 py-1">AUB</td>
-                          <td className="border px-2 py-1">{pos.bezeichnung}</td>
-                          <td className="border px-2 py-1 text-right">{pos.menge.toFixed(2)}</td>
-                          <td className="border px-2 py-1 text-right">{pos.preis.toFixed(2)}</td>
-                          <td className="border px-2 py-1 text-right font-semibold">{pos.gesamt.toFixed(2)}</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>AUB</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>{pos.bezeichnung}</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{pos.menge.toFixed(2)}</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{pos.preis.toFixed(2)}</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right', fontWeight: 'bold' }}>{pos.gesamt.toFixed(2)}</td>
                         </tr>
                       ))}
                       
                       {rechnung.allePositionen.map((pos, idx) => (
-                        <tr key={`lk-${idx}`} className={!pos.bewilligt ? 'bg-red-50' : ''}>
-                          <td className="border px-2 py-1">
-                            <span className={pos.umgewandeltZu ? 'line-through text-gray-400' : ''}>
+                        <tr key={`lk-${idx}`} style={{ background: !pos.bewilligt ? '#FEF2F2' : '' }}>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>
+                            <span style={{ textDecoration: pos.umgewandeltZu ? 'line-through' : 'none', color: pos.umgewandeltZu ? '#9CA3AF' : 'inherit' }}>
                               {pos.lkCode}
                             </span>
                           </td>
-                          <td className="border px-2 py-1">
-                            <span className={pos.umgewandeltZu ? 'line-through text-gray-400' : ''}>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>
+                            <span style={{ textDecoration: pos.umgewandeltZu ? 'line-through' : 'none', color: pos.umgewandeltZu ? '#9CA3AF' : 'inherit' }}>
                               {pos.lkCode} {pos.bezeichnung}
                             </span>
                             {pos.umgewandeltZu && (
-                              <span className="text-blue-600 ml-2 font-semibold text-xs">
+                              <span style={{ color: '#2563EB', marginLeft: '6px', fontWeight: 'bold', fontSize: '8px' }}>
                                 → in {pos.umgewandeltZu} umgewandelt
                               </span>
                             )}
                             {pos.mengeAusUmwandlung && (
-                              <span className="text-blue-600 ml-2 text-xs">
+                              <span style={{ color: '#2563EB', marginLeft: '6px', fontSize: '8px' }}>
                                 (inkl. {pos.mengeAusUmwandlung} aus LK14)
                               </span>
                             )}
                             {!pos.bewilligt && !pos.umgewandeltZu && (
-                              <span className="block text-red-600 text-xs italic mt-1">
+                              <span style={{ display: 'block', color: '#DC2626', fontSize: '8px', fontStyle: 'italic', marginTop: '2px' }}>
                                 ⚠ erbracht, aktuell nicht bewilligt
                               </span>
                             )}
                             {pos.gekuerztVon && (
-                              <span className="block text-orange-600 text-xs italic mt-1">
+                              <span style={{ display: 'block', color: '#EA580C', fontSize: '8px', fontStyle: 'italic', marginTop: '2px' }}>
                                 ℹ gekuerzt von {pos.gekuerztVon} auf {pos.menge}
                               </span>
                             )}
                           </td>
-                          <td className="border px-2 py-1 text-right">
-                            <span className={pos.umgewandeltZu ? 'line-through text-gray-400' : ''}>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>
+                            <span style={{ textDecoration: pos.umgewandeltZu ? 'line-through' : 'none', color: pos.umgewandeltZu ? '#9CA3AF' : 'inherit' }}>
                               {pos.menge.toFixed(2)}
                             </span>
                           </td>
-                          <td className="border px-2 py-1 text-right">
-                            <span className={pos.umgewandeltZu ? 'line-through text-gray-400' : ''}>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>
+                            <span style={{ textDecoration: pos.umgewandeltZu ? 'line-through' : 'none', color: pos.umgewandeltZu ? '#9CA3AF' : 'inherit' }}>
                               {pos.preis.toFixed(2)}
                             </span>
                           </td>
-                          <td className="border px-2 py-1 text-right">
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>
                             {pos.bewilligt ? (
-                              <span className="font-semibold">{pos.gesamt.toFixed(2)}</span>
+                              <span style={{ fontWeight: 'bold' }}>{pos.gesamt.toFixed(2)}</span>
                             ) : (
-                              <span className="text-gray-400">0,00</span>
+                              <span style={{ color: '#9CA3AF' }}>0,00</span>
                             )}
                           </td>
                         </tr>
                       ))}
                       
-                      <tr className="bg-gray-200 font-semibold">
-                        <td colSpan={4} className="border px-2 py-1 text-right">Zwischensumme:</td>
-                        <td className="border px-2 py-1 text-right">{rechnung.zwischensumme.toFixed(2)}</td>
+                      <tr style={{ background: '#E5E7EB', fontWeight: 'bold' }}>
+                        <td colSpan={4} style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>Zwischensumme:</td>
+                        <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{rechnung.zwischensumme.toFixed(2)}</td>
                       </tr>
                       <tr>
-                        <td className="border px-2 py-1">ZINV</td>
-                        <td className="border px-2 py-1">Investitionskosten 3,38%</td>
-                        <td className="border px-2 py-1 text-right">1,00</td>
-                        <td className="border px-2 py-1 text-right">{rechnung.zinv.toFixed(2)}</td>
-                        <td className="border px-2 py-1 text-right font-semibold">{rechnung.zinv.toFixed(2)}</td>
+                        <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>ZINV</td>
+                        <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>Investitionskosten 3,38%</td>
+                        <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>1,00</td>
+                        <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{rechnung.zinv.toFixed(2)}</td>
+                        <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right', fontWeight: 'bold' }}>{rechnung.zinv.toFixed(2)}</td>
                       </tr>
-                      <tr className="bg-gray-200 font-bold">
-                        <td colSpan={4} className="px-2 py-1 text-right">Gesamtbetrag:</td>
-                        <td className="px-2 py-1 text-right">{rechnung.gesamtbetrag.toFixed(2)}</td>
+                      <tr style={{ background: '#E5E7EB', fontWeight: 'bold' }}>
+                        <td colSpan={4} style={{ padding: '4px', textAlign: 'right' }}>Gesamtbetrag:</td>
+                        <td style={{ padding: '4px', textAlign: 'right' }}>{rechnung.gesamtbetrag.toFixed(2)}</td>
                       </tr>
                       <tr>
-                        <td colSpan={4} className="px-2 py-1 text-right">./. Anteil Pflegekasse:</td>
-                        <td className="px-2 py-1 text-right">{pflegekassenBetrag.toFixed(2)}</td>
+                        <td colSpan={4} style={{ padding: '4px', textAlign: 'right' }}>./. Anteil Pflegekasse:</td>
+                        <td style={{ padding: '4px', textAlign: 'right' }}>{pflegekassenBetrag.toFixed(2)}</td>
                       </tr>
-                      <tr className="bg-indigo-100 font-bold text-lg">
-                        <td colSpan={4} className="px-2 py-1 text-right">Rechnungsbetrag:</td>
-                        <td className="px-2 py-1 text-right text-indigo-700">{rechnung.rechnungsbetragBA.toFixed(2)}</td>
+                      <tr style={{ background: '#C7D2FE', fontWeight: 'bold', fontSize: '11px' }}>
+                        <td colSpan={4} style={{ padding: '6px 4px', textAlign: 'right' }}>Rechnungsbetrag:</td>
+                        <td style={{ padding: '6px 4px', textAlign: 'right', color: '#4F46E5' }}>{rechnung.rechnungsbetragBA.toFixed(2)}</td>
                       </tr>
                     </tbody>
                   </table>
 
-                  <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-4 text-xs">
-                    <p className="font-semibold mb-1">Hinweis:</p>
-                    <p>Positionen mit "erbracht, aktuell nicht bewilligt" wurden dokumentarisch aufgefuehrt, fliessen jedoch nicht in die Rechnungssumme ein.</p>
+                  <div style={{ background: '#FEF3C7', borderLeft: '3px solid #F59E0B', padding: '8px', marginBottom: '12px', fontSize: '8px' }}>
+                    <p style={{ fontWeight: 'bold', margin: '0 0 4px 0' }}>Hinweis:</p>
+                    <p style={{ margin: 0 }}>Positionen mit "erbracht, aktuell nicht bewilligt" wurden dokumentarisch aufgefuehrt, fliessen jedoch nicht in die Rechnungssumme ein.</p>
                   </div>
 
-                  <p className="text-xs mt-4">Zahlbar bis zum {new Date(Date.now() + 30*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
-                  <p className="text-xs">Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
+                  <p style={{ fontSize: '9px', marginTop: '12px', margin: 0 }}>Zahlbar bis zum {new Date(Date.now() + 30*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
+                  <p style={{ fontSize: '9px', margin: 0 }}>Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
 
-                  <div className="border-t-2 border-indigo-600 mt-8 pt-4">
-                    <div className="flex items-center justify-between">
-                      <img src={logoUrl} alt="DomusVita Logo" className="h-12 w-auto opacity-50" />
-                      <div className="text-xs text-gray-600 text-right">
-                        <p className="font-semibold">DomusVita Gesundheit GmbH</p>
-                        <p>Waldemarstrasse 10 A • 10999 Berlin</p>
-                        <p>Tel: 030/6120152-0 • kreuzberg@domusvita.de</p>
-                        <p>IBAN: DE53100500000190998890 • BIC: BELADEBEXXX</p>
+                  <div style={{ borderTop: '2px solid #4F46E5', marginTop: '16px', paddingTop: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <img src={logoUrl} alt="DomusVita Logo" style={{ height: '40px', width: 'auto', opacity: 0.5 }} />
+                      <div style={{ fontSize: '8px', color: '#666', textAlign: 'right' }}>
+                        <p style={{ fontWeight: 'bold', margin: 0 }}>{dienst.name}</p>
+                        <p style={{ margin: 0 }}>{dienst.strasse} • {dienst.plz}</p>
+                        <p style={{ margin: 0 }}>Tel: {dienst.telefon} • {dienst.email}</p>
+                        <p style={{ margin: 0 }}>IBAN: {dienst.iban} • BIC: {dienst.bic}</p>
                       </div>
                     </div>
                   </div>
@@ -1383,100 +1476,100 @@ export default function Home() {
               </div>
 
               <div className="p-8">
-                <div className="border-2 border-gray-300 p-8 bg-white" style={{ fontFamily: 'Arial, sans-serif' }}>
-                  <div className="mb-8">
-                    <div className="flex items-center justify-between mb-6 border-b-2 border-orange-600 pb-4">
+                <div className="bg-white" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px', lineHeight: '1.4' }}>
+                  <div className="mb-6">
+                    <div className="flex items-start justify-between mb-4 pb-3" style={{ borderBottom: '2px solid #EA580C' }}>
                       <div className="flex-1">
-                        <img src={logoUrl} alt="DomusVita Logo" className="h-24 w-auto" />
+                        <img src={logoUrl} alt="DomusVita Logo" style={{ height: '60px', width: 'auto' }} />
                       </div>
-                      <div className="text-right text-xs text-gray-600">
-                        <p className="font-semibold">DomusVita Gesundheit GmbH</p>
-                        <p>Waldemarstr. 10 A</p>
-                        <p>10999 Berlin</p>
+                      <div className="text-right" style={{ fontSize: '9px', color: '#666' }}>
+                        <p style={{ fontWeight: 'bold', margin: 0 }}>{dienst.name}</p>
+                        <p style={{ margin: 0 }}>{dienst.strasse}</p>
+                        <p style={{ margin: 0 }}>{dienst.plz}</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mb-6">
-                    <p className="text-sm font-bold">{klientData.name}</p>
-                    <p className="text-sm">10999 Berlin</p>
+                  <div className="mb-4">
+                    <p style={{ fontWeight: 'bold', margin: 0 }}>{klientData.name}</p>
+                    <p style={{ margin: 0 }}>{klientAdresse}</p>
                   </div>
 
-                  <div className="mb-6 text-right text-xs">
-                    <p>Telefon: 030/6120152-0</p>
-                    <p>E-Mail: kreuzberg@domusvita.de</p>
-                    <p className="font-semibold mt-2">Datum: Berlin, {new Date().toLocaleDateString('de-DE')}</p>
+                  <div className="mb-4 text-right" style={{ fontSize: '9px' }}>
+                    <p style={{ margin: 0 }}>Telefon: {dienst.telefon}</p>
+                    <p style={{ margin: 0 }}>E-Mail: {dienst.email}</p>
+                    <p style={{ fontWeight: 'bold', marginTop: '4px', margin: 0 }}>Datum: Berlin, {new Date().toLocaleDateString('de-DE')}</p>
                   </div>
 
-                  <div className="border-t border-b py-2 mb-4 bg-orange-50">
-                    <h2 className="text-lg font-bold text-center">PRIVATRECHNUNG</h2>
-                    <p className="text-xs text-center">Nicht bewilligte Leistungen</p>
+                  <div style={{ borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB', padding: '8px 0', marginBottom: '12px', background: '#FFF7ED' }}>
+                    <h2 style={{ fontSize: '14px', fontWeight: 'bold', textAlign: 'center', margin: 0 }}>PRIVATRECHNUNG</h2>
+                    <p style={{ fontSize: '9px', textAlign: 'center', margin: '2px 0 0 0' }}>Nicht bewilligte Leistungen</p>
                   </div>
 
-                  <div className="border p-3 mb-4 text-xs">
-                    <p><strong>Abrechnungszeitraum:</strong> {klientData.zeitraumVon} bis {klientData.zeitraumBis}</p>
-                    <p><strong>Leistungsempfaenger:</strong> {klientData.name}</p>
+                  <div style={{ border: '1px solid #E5E7EB', padding: '8px', marginBottom: '12px', fontSize: '9px' }}>
+                    <p style={{ margin: 0 }}><strong>Abrechnungszeitraum:</strong> {klientData.zeitraumVon} bis {klientData.zeitraumBis}</p>
+                    <p style={{ margin: '2px 0 0 0' }}><strong>Leistungsempfaenger:</strong> {klientData.name}</p>
                   </div>
 
-                  <table className="w-full text-xs mb-4 border-collapse">
+                  <table style={{ width: '100%', fontSize: '9px', marginBottom: '12px', borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr className="bg-orange-100">
-                        <th className="border px-2 py-1 text-left">Abk.</th>
-                        <th className="border px-2 py-1 text-left">Leistung</th>
-                        <th className="border px-2 py-1 text-right">Anzahl</th>
-                        <th className="border px-2 py-1 text-right">Einzelpreis</th>
-                        <th className="border px-2 py-1 text-right">Gesamtpreis</th>
+                      <tr style={{ background: '#FED7AA' }}>
+                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'left' }}>Abk.</th>
+                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'left' }}>Leistung</th>
+                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right' }}>Anzahl</th>
+                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right' }}>Einzelpreis</th>
+                        <th style={{ border: '1px solid #E5E7EB', padding: '6px 4px', textAlign: 'right' }}>Gesamtpreis</th>
                       </tr>
                     </thead>
                     <tbody>
                       {korrektur.aubPrivat.map((pos, idx) => (
                         <tr key={idx}>
-                          <td className="border px-2 py-1">AUB</td>
-                          <td className="border px-2 py-1">{pos.bezeichnung}</td>
-                          <td className="border px-2 py-1 text-right">{pos.menge.toFixed(2)}</td>
-                          <td className="border px-2 py-1 text-right">{pos.preis.toFixed(2)}</td>
-                          <td className="border px-2 py-1 text-right">{pos.gesamt.toFixed(2)}</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>AUB</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>{pos.bezeichnung}</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{pos.menge.toFixed(2)}</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{pos.preis.toFixed(2)}</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{pos.gesamt.toFixed(2)}</td>
                         </tr>
                       ))}
                       {korrektur.privatLKPositionen.map((pos, idx) => (
                         <tr key={idx}>
-                          <td className="border px-2 py-1">{pos.lkCode}</td>
-                          <td className="border px-2 py-1">{pos.bezeichnung}</td>
-                          <td className="border px-2 py-1 text-right">{pos.menge.toFixed(2)}</td>
-                          <td className="border px-2 py-1 text-right">{pos.preis.toFixed(2)}</td>
-                          <td className="border px-2 py-1 text-right">{pos.gesamt.toFixed(2)}</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>{pos.lkCode}</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px' }}>{pos.bezeichnung}</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{pos.menge.toFixed(2)}</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{pos.preis.toFixed(2)}</td>
+                          <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{pos.gesamt.toFixed(2)}</td>
                         </tr>
                       ))}
-                      <tr className="bg-gray-200">
-                        <td colSpan={4} className="border px-2 py-1 text-right"><strong>Zwischensumme:</strong></td>
-                        <td className="border px-2 py-1 text-right"><strong>{korrektur.zwischensummePrivat.toFixed(2)}</strong></td>
+                      <tr style={{ background: '#E5E7EB' }}>
+                        <td colSpan={4} style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}><strong>Zwischensumme:</strong></td>
+                        <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}><strong>{korrektur.zwischensummePrivat.toFixed(2)}</strong></td>
                       </tr>
                       <tr>
-                        <td colSpan={4} className="border px-2 py-1 text-right">ZINV (3,38%):</td>
-                        <td className="border px-2 py-1 text-right">{korrektur.zinvPrivat.toFixed(2)}</td>
+                        <td colSpan={4} style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>ZINV (3,38%):</td>
+                        <td style={{ border: '1px solid #E5E7EB', padding: '4px', textAlign: 'right' }}>{korrektur.zinvPrivat.toFixed(2)}</td>
                       </tr>
-                      <tr className="bg-orange-100 font-bold">
-                        <td colSpan={4} className="px-2 py-1 text-right">Rechnungsbetrag:</td>
-                        <td className="px-2 py-1 text-right">{korrektur.gesamtbetragPrivat.toFixed(2)}</td>
+                      <tr style={{ background: '#FED7AA', fontWeight: 'bold', fontSize: '11px' }}>
+                        <td colSpan={4} style={{ padding: '6px 4px', textAlign: 'right' }}>Rechnungsbetrag:</td>
+                        <td style={{ padding: '6px 4px', textAlign: 'right', color: '#EA580C' }}>{korrektur.gesamtbetragPrivat.toFixed(2)}</td>
                       </tr>
                     </tbody>
                   </table>
 
-                  <div className="bg-yellow-50 p-4 rounded-lg text-xs mt-4">
-                    <p className="font-semibold mb-2">Hinweis:</p>
-                    <p>Die aufgefuehrten Leistungen wurden von Ihrer Pflegekasse bzw. dem Bezirksamt nicht bewilligt oder ueberschreiten die genehmigte Menge.</p>
+                  <div style={{ background: '#FEF3C7', padding: '8px', borderRadius: '6px', fontSize: '8px', marginTop: '12px' }}>
+                    <p style={{ fontWeight: 'bold', margin: '0 0 4px 0' }}>Hinweis:</p>
+                    <p style={{ margin: 0 }}>Die aufgefuehrten Leistungen wurden von Ihrer Pflegekasse bzw. dem Bezirksamt nicht bewilligt oder ueberschreiten die genehmigte Menge.</p>
                   </div>
 
-                  <p className="text-xs mt-4">Zahlbar bis zum {new Date(Date.now() + 14*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
-                  <p className="text-xs">Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
+                  <p style={{ fontSize: '9px', marginTop: '12px', margin: 0 }}>Zahlbar bis zum {new Date(Date.now() + 14*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
+                  <p style={{ fontSize: '9px', margin: 0 }}>Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
 
-                  <div className="border-t-2 border-orange-600 mt-8 pt-4">
-                    <div className="flex items-center justify-between">
-                      <img src={logoUrl} alt="DomusVita Logo" className="h-12 w-auto opacity-50" />
-                      <div className="text-xs text-gray-600 text-right">
-                        <p className="font-semibold">DomusVita Gesundheit GmbH</p>
-                        <p>Waldemarstrasse 10 A • 10999 Berlin</p>
-                        <p>IBAN: DE53100500000190998890 • BIC: BELADEBEXXX</p>
+                  <div style={{ borderTop: '2px solid #EA580C', marginTop: '16px', paddingTop: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <img src={logoUrl} alt="DomusVita Logo" style={{ height: '40px', width: 'auto', opacity: 0.5 }} />
+                      <div style={{ fontSize: '8px', color: '#666', textAlign: 'right' }}>
+                        <p style={{ fontWeight: 'bold', margin: 0 }}>{dienst.name}</p>
+                        <p style={{ margin: 0 }}>{dienst.strasse} • {dienst.plz}</p>
+                        <p style={{ margin: 0 }}>IBAN: {dienst.iban} • BIC: {dienst.bic}</p>
                       </div>
                     </div>
                   </div>
