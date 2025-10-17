@@ -1321,7 +1321,7 @@ export default function Home() {
                   @media print {
                     @page {
                       size: A4;
-                      margin-top: 4.37cm;
+                      margin-top: 1cm;
                       margin-left: 1.75cm;
                       margin-right: 1.25cm;
                       margin-bottom: 2.54cm;
@@ -1537,7 +1537,7 @@ export default function Home() {
                   @media print {
                     @page {
                       size: A4;
-                      margin-top: 4.37cm;
+                      margin-top: 1cm;
                       margin-left: 1.75cm;
                       margin-right: 1.25cm;
                       margin-bottom: 2.54cm;
