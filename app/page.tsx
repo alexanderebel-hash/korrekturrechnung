@@ -1338,6 +1338,24 @@ export default function Home() {
                       font-size: 10pt;
                       line-height: 12.7pt;
                     }
+                    /* Table pagination - prevent row splitting */
+                    .invoice-table {
+                      page-break-inside: auto;
+                    }
+                    .invoice-table thead {
+                      display: table-header-group;
+                    }
+                    .invoice-table tfoot {
+                      display: table-footer-group;
+                    }
+                    .invoice-table tr {
+                      page-break-inside: avoid;
+                      page-break-after: auto;
+                    }
+                    .invoice-table td,
+                    .invoice-table th {
+                      page-break-inside: avoid;
+                    }
                     .invoice-table thead th {
                       font-style: italic;
                       font-size: 9pt;
@@ -1576,6 +1594,24 @@ export default function Home() {
                     .invoice-meta {
                       font-size: 10pt;
                       line-height: 12.7pt;
+                    }
+                    /* Table pagination - prevent row splitting */
+                    .invoice-table {
+                      page-break-inside: auto;
+                    }
+                    .invoice-table thead {
+                      display: table-header-group;
+                    }
+                    .invoice-table tfoot {
+                      display: table-footer-group;
+                    }
+                    .invoice-table tr {
+                      page-break-inside: avoid;
+                      page-break-after: auto;
+                    }
+                    .invoice-table td,
+                    .invoice-table th {
+                      page-break-inside: avoid;
                     }
                     .invoice-table thead th {
                       font-style: italic;

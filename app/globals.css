@@ -76,6 +76,28 @@
   .page-break-avoid {
     page-break-inside: avoid;
   }
+
+  /* Table pagination - prevent row splitting across pages */
+  table {
+    page-break-inside: auto;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  td, th {
+    page-break-inside: avoid;
+  }
 }
 
 body {
