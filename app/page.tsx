@@ -1321,7 +1321,7 @@ export default function Home() {
                   @media print {
                     @page {
                       size: A4 portrait;
-                      margin: 48mm 16mm 6mm 21mm;
+                      margin: 1cm 1.25cm 2.54cm 1.75cm;
                     }
                     body {
                       font-family: Arial, Helvetica, sans-serif;
@@ -1578,7 +1578,7 @@ export default function Home() {
                   @media print {
                     @page {
                       size: A4 portrait;
-                      margin: 48mm 16mm 6mm 21mm;
+                      margin: 1cm 1.25cm 2.54cm 1.75cm;
                     }
                     body {
                       font-family: Arial, Helvetica, sans-serif;

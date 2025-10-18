@@ -49,7 +49,7 @@
   /* Page Setup - German Invoice Standard */
   @page {
     size: A4 portrait;
-    margin: var(--m-top) var(--m-right) var(--m-bottom) var(--m-left);
+    margin: 1.5cm;
   }
 
   /* Base typography */
