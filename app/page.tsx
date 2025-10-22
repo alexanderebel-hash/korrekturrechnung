@@ -108,8 +108,8 @@ const LK_PREISE: { [key: string]: { bezeichnung: string; preis: number; aubPreis
   'LK16B': { bezeichnung: 'Folgebesuch', preis: 10.00, aubPreis: 0.16 },
   'LK17A': { bezeichnung: 'Einsatzpauschale', preis: 5.37, aubPreis: 0.12 },
   'LK17B': { bezeichnung: 'Einsatzpauschale WE', preis: 10.73, aubPreis: 0.25 },
-  'LK20': { bezeichnung: 'Haeusliche Betreuung Paragraph 124 SGB XI', preis: 3.38, aubPreis: 0.33 },
-  'LK20_HH': { bezeichnung: 'Haeusliche Betreuung Paragraph 124 SGB XI (Haushaltsbuch)', preis: 3.38, aubPreis: 0.33 }
+  'LK20': { bezeichnung: 'Haeusliche Betreuung Paragraph 124 SGB XI', preis: 8.26, aubPreis: 0.33 },
+  'LK20_HH': { bezeichnung: 'Haeusliche Betreuung Paragraph 124 SGB XI (Haushaltsbuch)', preis: 8.26, aubPreis: 0.33 }
 };
 
 const PFLEGEGRAD_SACHLEISTUNG: { [key: number]: number } = {
@@ -1321,7 +1321,7 @@ export default function Home() {
                   @media print {
                     @page {
                       size: A4 portrait;
-                      margin: 1cm 1.25cm 2.54cm 1.75cm;
+                      margin: 3.5cm 1.25cm 3cm 1.75cm;
                     }
                     body {
                       font-family: Arial, Helvetica, sans-serif;
@@ -1337,6 +1337,34 @@ export default function Home() {
                     .invoice-meta {
                       font-size: 10pt;
                       line-height: 12.7pt;
+                    }
+                    .fixed-header {
+                      position: fixed;
+                      top: 0;
+                      left: 0;
+                      right: 0;
+                      height: 3cm;
+                      display: flex;
+                      justify-content: space-between;
+                      align-items: flex-start;
+                      padding: 0.5cm 1.25cm 0.5cm 1.75cm;
+                      background: white;
+                      z-index: 1000;
+                    }
+                    .fixed-footer {
+                      position: fixed;
+                      bottom: 0;
+                      left: 0;
+                      right: 0;
+                      height: 2.5cm;
+                      padding: 0.3cm 1.25cm 0.5cm 1.75cm;
+                      background: white;
+                      border-top: 2px solid #4F46E5;
+                      font-family: Calibri, "Segoe UI", system-ui, sans-serif;
+                      font-size: 8pt;
+                      line-height: 1.6;
+                      text-align: center;
+                      z-index: 1000;
                     }
                     /* Table pagination - prevent row splitting */
                     .invoice-table {
@@ -1370,12 +1398,35 @@ export default function Home() {
                     }
                   }
                 `}} />
+
+                {/* Fixed Header - appears on every page */}
+                <div className="fixed-header print:block hidden">
+                  <div className="flex-1">
+                    <img src={logoUrl} alt="DomusVita Logo" style={{ height: '50px', width: 'auto' }} />
+                  </div>
+                  <div className="text-right invoice-header-imprint" style={{ fontSize: '8pt', color: '#666' }}>
+                    <p style={{ fontWeight: 'bold', margin: 0 }}>{dienst.name}</p>
+                    <p style={{ margin: 0 }}>{dienst.strasse}</p>
+                    <p style={{ margin: 0 }}>{dienst.plz}</p>
+                    <p style={{ margin: '4px 0 0 0' }}>IK: {dienst.ik}</p>
+                  </div>
+                </div>
+
+                {/* Fixed Footer - appears on every page */}
+                <div className="fixed-footer print:block hidden">
+                  <p style={{ margin: '2px 0', fontWeight: 'bold' }}>Sitz der Gesellschaft: DomusVita Gesundheit GmbH • Waldemarstrasse 10 A • 10999 Berlin</p>
+                  <p style={{ margin: '2px 0' }}>Telefon: 030/6120152-0 • Telefax: 030/6120152-10 • E-Mail: kreuzberg@domusvita.de • www.domusvita.de</p>
+                  <p style={{ margin: '2px 0' }}>Geschäftsführer: Lukas Dahrendorf • Alexander Ebel</p>
+                  <p style={{ margin: '2px 0' }}>Bankverbindung: DE53100500000190998890 • BIC: BELADEBEXXX • Berliner Sparkasse</p>
+                  <p style={{ margin: '2px 0' }}>AG Berlin Charlottenburg • HRB 87436 B • Steuernummer: 29/582/51396</p>
+                </div>
+
                 <div
                   className="bg-white"
                   style={{ fontFamily: 'Arial, sans-serif', fontSize: '9pt', lineHeight: '11pt' }}
                 >
                   <div className="bg-white invoice-body" style={{ fontFamily: 'Arial, sans-serif', fontSize: '9pt', lineHeight: '11pt' }}>
-                    <div className="mb-6">
+                    <div className="mb-6 print:hidden">
                       <div className="flex items-start justify-between mb-4 pb-3" style={{ borderBottom: '2px solid #4F46E5' }}>
                         <div className="flex-1">
                           <img src={logoUrl} alt="DomusVita Logo" style={{ height: '60px', width: 'auto' }} />
@@ -1543,16 +1594,6 @@ export default function Home() {
 
                     <p style={{ fontSize: '10pt', lineHeight: '12.7pt', margin: '8px 0' }}>Zahlbar bis zum {new Date(Date.now() + 30*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
                     <p style={{ fontSize: '10pt', lineHeight: '12.7pt', margin: 0 }}>Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
-
-                    <div className="page-break-avoid" style={{ borderTop: '2px solid #4F46E5', marginTop: '16px', paddingTop: '8px' }}>
-                      <div className="invoice-header-imprint" style={{ fontSize: '8pt', color: '#666', textAlign: 'center', lineHeight: '1.6' }}>
-                        <p style={{ margin: '2px 0', fontWeight: 'bold' }}>Sitz der Gesellschaft: DomusVita Gesundheit GmbH • Waldemarstrasse 10 A • 10999 Berlin</p>
-                        <p style={{ margin: '2px 0' }}>Telefon: 030/6120152-0 • Telefax: 030/6120152-10 • E-Mail: kreuzberg@domusvita.de • www.domusvita.de</p>
-                        <p style={{ margin: '2px 0' }}>Geschäftsführer: Lukas Dahrendorf • Alexander Ebel</p>
-                        <p style={{ margin: '2px 0' }}>Bankverbindung: DE53100500000190998890 • BIC: BELADEBEXXX • Berliner Sparkasse</p>
-                        <p style={{ margin: '2px 0' }}>AG Berlin Charlottenburg • HRB 87436 B • Steuernummer: 29/582/51396</p>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -1578,7 +1619,7 @@ export default function Home() {
                   @media print {
                     @page {
                       size: A4 portrait;
-                      margin: 1cm 1.25cm 2.54cm 1.75cm;
+                      margin: 3.5cm 1.25cm 3cm 1.75cm;
                     }
                     body {
                       font-family: Arial, Helvetica, sans-serif;
@@ -1594,6 +1635,34 @@ export default function Home() {
                     .invoice-meta {
                       font-size: 10pt;
                       line-height: 12.7pt;
+                    }
+                    .fixed-header-privat {
+                      position: fixed;
+                      top: 0;
+                      left: 0;
+                      right: 0;
+                      height: 3cm;
+                      display: flex;
+                      justify-content: space-between;
+                      align-items: flex-start;
+                      padding: 0.5cm 1.25cm 0.5cm 1.75cm;
+                      background: white;
+                      z-index: 1000;
+                    }
+                    .fixed-footer-privat {
+                      position: fixed;
+                      bottom: 0;
+                      left: 0;
+                      right: 0;
+                      height: 2.5cm;
+                      padding: 0.3cm 1.25cm 0.5cm 1.75cm;
+                      background: white;
+                      border-top: 2px solid #EA580C;
+                      font-family: Calibri, "Segoe UI", system-ui, sans-serif;
+                      font-size: 8pt;
+                      line-height: 1.6;
+                      text-align: center;
+                      z-index: 1000;
                     }
                     /* Table pagination - prevent row splitting */
                     .invoice-table {
@@ -1627,8 +1696,31 @@ export default function Home() {
                     }
                   }
                 `}} />
+
+                {/* Fixed Header - appears on every page */}
+                <div className="fixed-header-privat print:block hidden">
+                  <div className="flex-1">
+                    <img src={logoUrl} alt="DomusVita Logo" style={{ height: '50px', width: 'auto' }} />
+                  </div>
+                  <div className="text-right invoice-header-imprint" style={{ fontSize: '8pt', color: '#666' }}>
+                    <p style={{ fontWeight: 'bold', margin: 0 }}>{dienst.name}</p>
+                    <p style={{ margin: 0 }}>{dienst.strasse}</p>
+                    <p style={{ margin: 0 }}>{dienst.plz}</p>
+                    <p style={{ margin: '4px 0 0 0' }}>IK: {dienst.ik}</p>
+                  </div>
+                </div>
+
+                {/* Fixed Footer - appears on every page */}
+                <div className="fixed-footer-privat print:block hidden">
+                  <p style={{ margin: '2px 0', fontWeight: 'bold' }}>Sitz der Gesellschaft: DomusVita Gesundheit GmbH • Waldemarstrasse 10 A • 10999 Berlin</p>
+                  <p style={{ margin: '2px 0' }}>Telefon: 030/6120152-0 • Telefax: 030/6120152-10 • E-Mail: kreuzberg@domusvita.de • www.domusvita.de</p>
+                  <p style={{ margin: '2px 0' }}>Geschäftsführer: Lukas Dahrendorf • Alexander Ebel</p>
+                  <p style={{ margin: '2px 0' }}>Bankverbindung: DE53100500000190998890 • BIC: BELADEBEXXX • Berliner Sparkasse</p>
+                  <p style={{ margin: '2px 0' }}>AG Berlin Charlottenburg • HRB 87436 B • Steuernummer: 29/582/51396</p>
+                </div>
+
                 <div className="bg-white invoice-body" style={{ fontFamily: 'Arial, sans-serif', fontSize: '9pt', lineHeight: '11pt' }}>
-                  <div className="mb-6">
+                  <div className="mb-6 print:hidden">
                     <div className="flex items-start justify-between mb-4 pb-3" style={{ borderBottom: '2px solid #EA580C' }}>
                       <div className="flex-1">
                         <img src={logoUrl} alt="DomusVita Logo" style={{ height: '60px', width: 'auto' }} />
@@ -1723,16 +1815,6 @@ export default function Home() {
 
                   <p style={{ fontSize: '10pt', lineHeight: '12.7pt', margin: '8px 0' }}>Zahlbar bis zum {new Date(Date.now() + 14*24*60*60*1000).toLocaleDateString('de-DE')} ohne Abzug.</p>
                   <p style={{ fontSize: '10pt', lineHeight: '12.7pt', margin: 0 }}>Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
-
-                  <div className="page-break-avoid" style={{ borderTop: '2px solid #EA580C', marginTop: '16px', paddingTop: '8px' }}>
-                    <div className="invoice-header-imprint" style={{ fontSize: '8pt', color: '#666', textAlign: 'center', lineHeight: '1.6' }}>
-                      <p style={{ margin: '2px 0', fontWeight: 'bold' }}>Sitz der Gesellschaft: DomusVita Gesundheit GmbH • Waldemarstrasse 10 A • 10999 Berlin</p>
-                      <p style={{ margin: '2px 0' }}>Telefon: 030/6120152-0 • Telefax: 030/6120152-10 • E-Mail: kreuzberg@domusvita.de • www.domusvita.de</p>
-                      <p style={{ margin: '2px 0' }}>Geschäftsführer: Lukas Dahrendorf • Alexander Ebel</p>
-                      <p style={{ margin: '2px 0' }}>Bankverbindung: DE53100500000190998890 • BIC: BELADEBEXXX • Berliner Sparkasse</p>
-                      <p style={{ margin: '2px 0' }}>AG Berlin Charlottenburg • HRB 87436 B • Steuernummer: 29/582/51396</p>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
