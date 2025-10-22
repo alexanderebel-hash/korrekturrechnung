@@ -113,6 +113,7 @@ const LK_PREISE: { [key: string]: { bezeichnung: string; preis: number; aubPreis
 };
 
 const PFLEGEGRAD_SACHLEISTUNG: { [key: number]: number } = {
+  1: 131.00,
   2: 796.00,
   3: 1497.00,
   4: 1859.00,
