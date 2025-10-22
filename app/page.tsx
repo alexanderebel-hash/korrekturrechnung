@@ -700,6 +700,7 @@ export default function Home() {
               onChange={(e) => updateKlientData('pflegegrad', parseInt(e.target.value))}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
+              <option value={1}>Pflegegrad 1 (131,00€)</option>
               <option value={2}>Pflegegrad 2</option>
               <option value={3}>Pflegegrad 3</option>
               <option value={4}>Pflegegrad 4</option>
