@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import MedifoxOCRUploadExtended from "@/components/MedifoxOCRUploadExtended";
+import InvoiceLayoutNew from "@/app/components/InvoiceLayoutNew";
 
 interface BewilligungRow {
   lkCode: string;
@@ -151,6 +152,7 @@ export default function Home() {
   const [pflegekassenBetrag, setPflegekassenBetrag] = useState<number>(1497.00);
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [showPrivatPreview, setShowPrivatPreview] = useState(false);
+  const [showPreviewNew, setShowPreviewNew] = useState(false);
   const [korrekturAnfrage, setKorrekturAnfrage] = useState('');
   const [showRechnungsnummerModal, setShowRechnungsnummerModal] = useState(false);
   const [rechnungsnummer, setRechnungsnummer] = useState('');
@@ -1605,17 +1607,23 @@ export default function Home() {
                 <div className="border-t pt-4">
                   <h4 className="font-semibold text-gray-800 mb-3">Korrekturrechnung BA:</h4>
                   <div className="flex gap-3">
-                    <button 
+                    <button
                       onClick={() => handlePrintOrDownload('ba', 'print')}
                       className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-medium"
                     >
                       🖨️ Drucken
                     </button>
-                    <button 
+                    <button
                       onClick={() => handlePrintOrDownload('ba', 'download')}
                       className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-medium"
                     >
                       💾 Als PDF speichern
+                    </button>
+                    <button
+                      onClick={() => setShowPreviewNew(true)}
+                      className="flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 font-medium"
+                    >
+                      📄 Vorschau BA (Neu)
                     </button>
                   </div>
                 </div>
@@ -2199,6 +2207,65 @@ export default function Home() {
                   <p style={{ fontSize: '10pt', lineHeight: '12.7pt', margin: 0 }}>Umsatzsteuerfrei gemaess § 4 Nr. 16 UStG</p>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {showPreviewNew && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-auto">
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center z-10">
+                <h3 className="text-xl font-bold text-indigo-600">
+                  📄 Korrekturrechnung BA (Neues Layout)
+                </h3>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => window.print()}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                  >
+                    🖨️ Drucken/PDF
+                  </button>
+                  <button
+                    onClick={() => setShowPreviewNew(false)}
+                    className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+
+              {/* Neue Layout-Komponente */}
+              <InvoiceLayoutNew
+                rechnung={korrektur}
+                klient={{
+                  name: klientData.name,
+                  adresse: klientAdresse,
+                  pflegegrad: klientData.pflegegrad
+                }}
+                dienst={{
+                  name: dienst.name,
+                  strasse: dienst.strasse,
+                  plz: dienst.plz,
+                  ik: dienst.ik,
+                  telefon: dienst.telefon,
+                  fax: dienst.telefax,
+                  email: dienst.email,
+                  iban: dienst.iban,
+                  bic: dienst.bic,
+                  bank: dienst.bank
+                }}
+                rechnungsNummer={klientData.belegNr}
+                debitorNummer={klientData.debitor}
+                zeitraumVon={klientData.zeitraumVon}
+                zeitraumBis={klientData.zeitraumBis}
+                rechnungsdatum={new Date().toLocaleDateString('de-DE')}
+                pflegekassenBetrag={pflegekassenBetrag}
+                logoUrl={logoUrl}
+                rechnungsEmpfaenger="Bezirksamt Mitte von Berlin"
+                empfaengerStrasse="Standort Wedding, Muellerstrasse 146-147"
+                empfaengerPlz="13344 Berlin"
+              />
             </div>
           </div>
         )}
