@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
+import MedifoxOCRUploadExtended from "@/components/MedifoxOCRUploadExtended";
 
 interface BewilligungRow {
   lkCode: string;
@@ -155,7 +156,15 @@ export default function Home() {
   const [rechnungsnummer, setRechnungsnummer] = useState('');
   const [actionType, setActionType] = useState<'print' | 'download'>('print');
   const [pdfType, setPdfType] = useState<'ba' | 'privat'>('ba');
-  
+  const [medifoxPositionen, setMedifoxPositionen] = useState<Array<{
+    lkCode: string;
+    bezeichnung: string;
+    menge: number;
+    einzelpreis: number;
+    gesamtpreis: number;
+    isAUB?: boolean;
+  }>>([]);
+
   const ladeTestBewilligung = () => {
     const testBewilligung: BewilligungRow[] = [
       { lkCode: 'LK02', bezeichnung: 'Kleine Körperpflege', jeWoche: 1, jeMonat: 4 },
@@ -195,6 +204,60 @@ export default function Home() {
   const handleNeueRechnung = () => {
     if (window.confirm('Sind Sie sicher, dass Sie eine neue Korrekturrechnung erstellen möchten? Alle aktuellen Daten gehen verloren.')) {
       window.location.reload();
+    }
+  };
+
+  const handleOCRPositionsExtracted = (positionen: any[], metadata?: any) => {
+    // LKs und AUBs filtern
+    const lkPositionen = positionen.filter(p => !p.isAUB);
+    const aubPositionen = positionen.filter(p => p.isAUB);
+
+    // In RechnungsPositionen konvertieren
+    const neuePositionen: RechnungsPosition[] = [...lkPositionen, ...aubPositionen].map(pos => {
+      // Prüfen ob LK in Bewilligung vorhanden ist
+      const bewilligt = bewilligung.some(b =>
+        b.lkCode.toLowerCase().replace(/\s/g, '') === pos.lkCode.toLowerCase().replace(/\s/g, '')
+      );
+
+      return {
+        lkCode: pos.lkCode,
+        bezeichnung: pos.bezeichnung,
+        menge: pos.menge,
+        preis: pos.einzelpreis,
+        gesamt: pos.gesamtpreis,
+        bewilligt: bewilligt,
+        istAUB: pos.isAUB || false
+      };
+    });
+
+    setRechnungPositionen(neuePositionen);
+    setMedifoxPositionen(positionen);
+
+    // Metadata verarbeiten
+    if (metadata) {
+      if (metadata.klient) {
+        setKlientData({...klientData, name: metadata.klient});
+      }
+      if (metadata.zeitraum) {
+        // Zeitraum z.B. "01.09.2025 - 30.09.2025" parsen
+        const match = metadata.zeitraum.match(/(\d{2}\.\d{2}\.\d{4})\s*-\s*(\d{2}\.\d{2}\.\d{4})/);
+        if (match) {
+          const [, von, bis] = match;
+          // DD.MM.YYYY zu YYYY-MM-DD konvertieren
+          const vonISO = von.split('.').reverse().join('-');
+          const bisISO = bis.split('.').reverse().join('-');
+          setKlientData({
+            ...klientData,
+            zeitraumVon: vonISO,
+            zeitraumBis: bisISO,
+            name: metadata.klient || klientData.name
+          });
+        }
+      }
+      if (metadata.pflegegrad) {
+        setKlientData({...klientData, pflegegrad: metadata.pflegegrad, name: metadata.klient || klientData.name});
+        setPflegekassenBetrag(PFLEGEGRAD_SACHLEISTUNG[metadata.pflegegrad] || pflegekassenBetrag);
+      }
     }
   };
 
@@ -903,52 +966,32 @@ export default function Home() {
               Schritt 3: Medifox-Rechnung (Originalrechnung)
             </h3>
 
+            {/* OPTION A: OCR-Upload */}
             <div className="mb-6">
-              <p className="text-sm text-gray-600 mb-3">
-                <strong>Optional:</strong> Medifox-PDF hochladen
-              </p>
-              
-              <div 
-                onClick={() => document.getElementById('medifox-input')?.click()}
-                className="border-2 border-dashed border-purple-400 rounded-xl p-4 text-center hover:border-purple-600 transition-all cursor-pointer"
-              >
-                {!medifoxPdf ? (
-                  <>
-                    <div className="text-3xl mb-1">📄</div>
-                    <div className="text-sm text-purple-600 font-medium">
-                      Medifox-Rechnung (PDF)
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex items-center justify-between bg-purple-100 rounded-lg px-4 py-2">
-                    <span className="text-purple-800 font-medium text-sm">
-                      {medifoxPdf.name}
-                    </span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setMedifoxPdf(null);
-                      }}
-                      className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 text-xs"
-                    >
-                      X
-                    </button>
-                  </div>
-                )}
-                <input
-                  id="medifox-input"
-                  type="file"
-                  accept=".pdf"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) setMedifoxPdf(file);
-                  }}
-                  className="hidden"
-                />
+              <h4 className="text-md font-semibold text-indigo-700 mb-3">
+                Option A: PDF hochladen (automatisch)
+              </h4>
+              <MedifoxOCRUploadExtended
+                onPositionsExtracted={handleOCRPositionsExtracted}
+                showMetadata={true}
+              />
+            </div>
+
+            {/* ODER-Trennlinie */}
+            <div className="relative mb-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t-2 border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white text-gray-500 font-bold uppercase tracking-wide">ODER</span>
               </div>
             </div>
 
+            {/* OPTION B: Manuelle Eingabe */}
             <div>
+              <h4 className="text-md font-semibold text-purple-700 mb-3">
+                Option B: Manuell eingeben
+              </h4>
               <p className="text-sm text-gray-600 mb-3">
                 <strong>Rechnungspositionen aus Medifox (wie erbracht):</strong>
               </p>
