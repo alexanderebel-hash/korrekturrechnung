@@ -33,6 +33,14 @@ export default function InvoiceLayoutNew({
   empfaengerPlz,
 }: InvoiceLayoutNewProps) {
 
+  // Kombiniere alle Positionen für die Anzeige
+  const allePositionen = [
+    ...(rechnung.bewilligtePositionen || []),
+    ...(rechnung.aubBewilligt || []),
+    ...(rechnung.nichtBewilligtePositionen || []),
+    ...(rechnung.aubNichtBewilligt || [])
+  ];
+
   // Zahlungsfrist berechnen (30 Tage)
   const zahlungsfrist = new Date(rechnungsdatum);
   zahlungsfrist.setDate(zahlungsfrist.getDate() + 30);
@@ -178,7 +186,7 @@ export default function InvoiceLayoutNew({
           </tr>
         </thead>
         <tbody>
-          {rechnung.allePositionen.map((pos: any, idx: number) => (
+          {allePositionen.map((pos: any, idx: number) => (
             <tr
               key={`lk-${idx}`}
               style={{
@@ -279,7 +287,7 @@ export default function InvoiceLayoutNew({
               Zwischensumme:
             </td>
             <td style={{ padding: '8px', textAlign: 'right' }}>
-              {rechnung.zwischensumme.toFixed(2)}
+              {rechnung.zwischensummeBA.toFixed(2)}
             </td>
           </tr>
 
@@ -289,10 +297,10 @@ export default function InvoiceLayoutNew({
             <td style={{ padding: '8px' }}>Investitionskosten 3,38%</td>
             <td style={{ padding: '8px', textAlign: 'right' }}>1,00</td>
             <td style={{ padding: '8px', textAlign: 'right' }}>
-              {rechnung.zinv.toFixed(2)}
+              {rechnung.zinvBA.toFixed(2)}
             </td>
             <td style={{ padding: '8px', textAlign: 'right', fontWeight: 'bold' }}>
-              {rechnung.zinv.toFixed(2)}
+              {rechnung.zinvBA.toFixed(2)}
             </td>
           </tr>
 
@@ -302,7 +310,7 @@ export default function InvoiceLayoutNew({
               Gesamtbetrag:
             </td>
             <td style={{ padding: '8px', textAlign: 'right' }}>
-              {rechnung.gesamtbetrag.toFixed(2)}
+              {rechnung.gesamtbetragBA.toFixed(2)}
             </td>
           </tr>
 
