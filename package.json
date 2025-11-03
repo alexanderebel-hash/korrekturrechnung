@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
+    "@vercel/blob": "^2.0.0",
     "lucide-react": "^0.552.0",
     "next": "15.5.5",
     "react": "19.1.0",

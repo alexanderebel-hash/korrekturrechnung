@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import MedifoxOCRUploadExtended from "@/components/MedifoxOCRUploadExtended";
 
@@ -85,18 +85,18 @@ const WOHNHEIME: { [key: string]: string } = {
 };
 
 const LK_PREISE: { [key: string]: { bezeichnung: string; preis: number; aubPreis: number } } = {
-  'LK01': { bezeichnung: 'Erweiterte kleine Koerperpflege', preis: 25.52, aubPreis: 0.84 },
+  'LK01': { bezeichnung: 'Erweiterte kleine Koerperpflege', preis: 25.51, aubPreis: 0.59 },
   'LK02': { bezeichnung: 'Kleine Koerperpflege', preis: 17.01, aubPreis: 0.39 },
-  'LK03A': { bezeichnung: 'Erweiterte grosse Koerperpflege', preis: 42.78, aubPreis: 1.15 },
-  'LK03B': { bezeichnung: 'Erweiterte grosse Koerperpflege m. Baden', preis: 51.01, aubPreis: 1.15 },
+  'LK03A': { bezeichnung: 'Erweiterte grosse Koerperpflege', preis: 38.30, aubPreis: 0.88 },
+  'LK03B': { bezeichnung: 'Erweiterte grosse Koerperpflege m. Baden', preis: 51.02, aubPreis: 1.17 },
   'LK04': { bezeichnung: 'Grosse Koerperpflege', preis: 34.01, aubPreis: 0.78 },
-  'LK05': { bezeichnung: 'Lagern/Betten', preis: 6.77, aubPreis: 0.93 },
-  'LK06': { bezeichnung: 'Hilfe bei der Nahrungsaufnahme', preis: 10.15, aubPreis: 1.63 },
+  'LK05': { bezeichnung: 'Lagern/Betten', preis: 8.50, aubPreis: 0.20 },
+  'LK06': { bezeichnung: 'Hilfe bei der Nahrungsaufnahme', preis: 21.30, aubPreis: 0.49 },
   'LK07A': { bezeichnung: 'Darm- und Blasenentleerung', preis: 6.77, aubPreis: 0.16 },
-  'LK07B': { bezeichnung: 'Darm- und Blasenentleerung erweitert', preis: 10.15, aubPreis: 0.39 },
-  'LK08A': { bezeichnung: 'Hilfestellung beim Verlassen/Wiederaufsuchen der Wohnung', preis: 3.38, aubPreis: 0.33 },
-  'LK08B': { bezeichnung: 'Hilfestellung beim Wiederaufsuchen der Wohnung', preis: 3.38, aubPreis: 0.33 },
-  'LK09': { bezeichnung: 'Begleitung ausser Haus', preis: 20.30, aubPreis: 1.59 },
+  'LK07B': { bezeichnung: 'Darm- und Blasenentleerung erweitert', preis: 17.01, aubPreis: 0.39 },
+  'LK08A': { bezeichnung: 'Hilfestellung beim Verlassen/Wiederaufsuchen der Wohnung', preis: 5.94, aubPreis: 0.14 },
+  'LK08B': { bezeichnung: 'Hilfestellung beim Wiederaufsuchen der Wohnung', preis: 5.94, aubPreis: 0.14 },
+  'LK09': { bezeichnung: 'Begleitung ausser Haus', preis: 51.02, aubPreis: 1.17 },
   'LK10': { bezeichnung: 'Heizen', preis: 3.38, aubPreis: 1.88 },
   'LK11A': { bezeichnung: 'Kleine Reinigung der Wohnung', preis: 7.43, aubPreis: 0.17 },
   'LK11B': { bezeichnung: 'Grosse Reinigung der Wohnung', preis: 22.29, aubPreis: 0.51 },
@@ -109,8 +109,8 @@ const LK_PREISE: { [key: string]: { bezeichnung: string; preis: number; aubPreis
   'LK16B': { bezeichnung: 'Folgebesuch', preis: 10.00, aubPreis: 0.16 },
   'LK17A': { bezeichnung: 'Einsatzpauschale', preis: 5.37, aubPreis: 0.12 },
   'LK17B': { bezeichnung: 'Einsatzpauschale WE', preis: 10.73, aubPreis: 0.25 },
-  'LK20': { bezeichnung: 'Haeusliche Betreuung Paragraph 124 SGB XI', preis: 8.26, aubPreis: 0.33 },
-  'LK20_HH': { bezeichnung: 'Haeusliche Betreuung Paragraph 124 SGB XI (Haushaltsbuch)', preis: 8.26, aubPreis: 0.33 }
+  'LK20': { bezeichnung: 'Haeusliche Betreuung Paragraph 124 SGB XI', preis: 8.26, aubPreis: 0.19 },
+  'LK20_HH': { bezeichnung: 'Haeusliche Betreuung Paragraph 124 SGB XI (Haushaltsbuch)', preis: 8.26, aubPreis: 0.19 }
 };
 
 const PFLEGEGRAD_SACHLEISTUNG: { [key: number]: number } = {
@@ -164,6 +164,16 @@ export default function Home() {
     gesamtpreis: number;
     isAUB?: boolean;
   }>>([]);
+  const [uploadMode, setUploadMode] = useState<'manual' | 'blob' | 'save'>('manual');
+  const [blobBewilligungen, setBlobBewilligungen] = useState<Array<{
+    url: string;
+    filename: string;
+    uploadedAt: Date;
+    size: number;
+  }>>([]);
+  const [isLoadingBlob, setIsLoadingBlob] = useState(false);
+  const [isSavingBlob, setIsSavingBlob] = useState(false);
+  const [blobError, setBlobError] = useState('');
 
   const ladeTestBewilligung = () => {
     const testBewilligung: BewilligungRow[] = [
@@ -212,8 +222,8 @@ export default function Home() {
     const lkPositionen = positionen.filter(p => !p.isAUB);
     const aubPositionen = positionen.filter(p => p.isAUB);
 
-    // In RechnungsPositionen konvertieren
-    const neuePositionen: RechnungsPosition[] = [...lkPositionen, ...aubPositionen].map(pos => {
+    // Schritt 1: LKs verarbeiten und Bewilligungsstatus prüfen
+    const verarbeiteteLKs: RechnungsPosition[] = lkPositionen.map(pos => {
       // Prüfen ob LK in Bewilligung vorhanden ist
       const bewilligt = bewilligung.some(b =>
         b.lkCode.toLowerCase().replace(/\s/g, '') === pos.lkCode.toLowerCase().replace(/\s/g, '')
@@ -224,11 +234,99 @@ export default function Home() {
         bezeichnung: pos.bezeichnung,
         menge: pos.menge,
         preis: pos.einzelpreis,
-        gesamt: pos.gesamtpreis,
+        gesamt: pos.menge * pos.einzelpreis,
         bewilligt: bewilligt,
-        istAUB: pos.isAUB || false
+        istAUB: false
       };
     });
+
+    // Schritt 2: Für JEDEN bewilligten LK die entsprechende AUB hinzufügen
+    const benoetigteAUBs: RechnungsPosition[] = [];
+
+    verarbeiteteLKs.forEach(lk => {
+      if (lk.bewilligt && lk.menge > 0) {
+        // Suche die passende AUB für diesen LK
+        // AUB-Code ist z.B. "AUB_LK02" für "LK02" oder "AUB LK02"
+        const lkCodeClean = lk.lkCode.toUpperCase().replace(/\s/g, '');
+
+        const passenderAUB = aubPositionen.find(aub => {
+          const aubCodeClean = aub.lkCode.toUpperCase().replace(/\s/g, '').replace('AUB_', '').replace('AUB', '');
+          return aubCodeClean === lkCodeClean;
+        });
+
+        if (passenderAUB) {
+          // AUB mit der GLEICHEN Menge wie der bewilligte LK hinzufügen
+          benoetigteAUBs.push({
+            lkCode: passenderAUB.lkCode,
+            bezeichnung: passenderAUB.bezeichnung,
+            menge: lk.menge, // Wichtig: gleiche Menge wie der LK!
+            preis: passenderAUB.einzelpreis,
+            gesamt: lk.menge * passenderAUB.einzelpreis,
+            bewilligt: true, // AUB ist immer bewilligt wenn der LK bewilligt ist
+            istAUB: true,
+            zugehoerigLK: lk.lkCode
+          });
+        } else {
+          // Fallback: AUB-Preis aus LK_PREISE holen wenn nicht in OCR gefunden
+          const lkInfo = LK_PREISE[lkCodeClean];
+          if (lkInfo && lkInfo.aubPreis > 0) {
+            benoetigteAUBs.push({
+              lkCode: `AUB_${lkCodeClean}`,
+              bezeichnung: `AUB zu ${lk.bezeichnung}`,
+              menge: lk.menge,
+              preis: lkInfo.aubPreis,
+              gesamt: lk.menge * lkInfo.aubPreis,
+              bewilligt: true,
+              istAUB: true,
+              zugehoerigLK: lk.lkCode
+            });
+          }
+        }
+      }
+    });
+
+    // Schritt 3: Nicht bewilligte LKs bekommen ihre AUBs auch (aber als nicht bewilligt)
+    verarbeiteteLKs.forEach(lk => {
+      if (!lk.bewilligt && lk.menge > 0) {
+        const lkCodeClean = lk.lkCode.toUpperCase().replace(/\s/g, '');
+
+        const passenderAUB = aubPositionen.find(aub => {
+          const aubCodeClean = aub.lkCode.toUpperCase().replace(/\s/g, '').replace('AUB_', '').replace('AUB', '');
+          return aubCodeClean === lkCodeClean;
+        });
+
+        if (passenderAUB) {
+          benoetigteAUBs.push({
+            lkCode: passenderAUB.lkCode,
+            bezeichnung: passenderAUB.bezeichnung,
+            menge: lk.menge,
+            preis: passenderAUB.einzelpreis,
+            gesamt: lk.menge * passenderAUB.einzelpreis,
+            bewilligt: false,
+            istAUB: true,
+            zugehoerigLK: lk.lkCode
+          });
+        } else {
+          // Fallback
+          const lkInfo = LK_PREISE[lkCodeClean];
+          if (lkInfo && lkInfo.aubPreis > 0) {
+            benoetigteAUBs.push({
+              lkCode: `AUB_${lkCodeClean}`,
+              bezeichnung: `AUB zu ${lk.bezeichnung}`,
+              menge: lk.menge,
+              preis: lkInfo.aubPreis,
+              gesamt: lk.menge * lkInfo.aubPreis,
+              bewilligt: false,
+              istAUB: true,
+              zugehoerigLK: lk.lkCode
+            });
+          }
+        }
+      }
+    });
+
+    // Alle Positionen zusammenführen: LKs + automatisch berechnete AUBs
+    const neuePositionen: RechnungsPosition[] = [...verarbeiteteLKs, ...benoetigteAUBs];
 
     setRechnungPositionen(neuePositionen);
     setMedifoxPositionen(positionen);
@@ -260,6 +358,90 @@ export default function Home() {
       }
     }
   };
+
+  // Funktion: Blob-Liste laden
+  const loadBlobBewilligungen = async () => {
+    setIsLoadingBlob(true);
+    setBlobError('');
+    try {
+      const response = await fetch('/api/bewilligungen/list');
+      const data = await response.json();
+
+      if (data.success) {
+        setBlobBewilligungen(data.bewilligungen);
+      } else {
+        setBlobError(data.error || 'Fehler beim Laden der Bewilligungen');
+      }
+    } catch (error: any) {
+      setBlobError(error.message || 'Netzwerkfehler');
+    } finally {
+      setIsLoadingBlob(false);
+    }
+  };
+
+  // Funktion: Bewilligung aus Blob laden
+  const loadBewilligungFromBlob = async (url: string, filename: string) => {
+    setIsLoadingBlob(true);
+    setBlobError('');
+    try {
+      const response = await fetch(`/api/bewilligungen/download?url=${encodeURIComponent(url)}`);
+      const arrayBuffer = await response.arrayBuffer();
+      const blob = new Blob([arrayBuffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+      const file = new File([blob], filename, {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+
+      setExcelFile(file);
+      await processExcelFile(file);
+    } catch (error: any) {
+      setBlobError(error.message || 'Fehler beim Laden der Datei');
+    } finally {
+      setIsLoadingBlob(false);
+    }
+  };
+
+  // Funktion: Bewilligung in Blob speichern
+  const saveBewilligungToBlob = async () => {
+    if (!excelFile) {
+      setBlobError('Keine Datei zum Speichern ausgewählt');
+      return;
+    }
+
+    setIsSavingBlob(true);
+    setBlobError('');
+    try {
+      const formData = new FormData();
+      formData.append('file', excelFile);
+
+      const response = await fetch('/api/bewilligungen/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('✅ Bewilligung erfolgreich gespeichert!');
+        await loadBlobBewilligungen(); // Liste aktualisieren
+        setUploadMode('blob'); // Wechsle zum Blob-Tab
+      } else {
+        setBlobError(data.error || 'Fehler beim Speichern');
+      }
+    } catch (error: any) {
+      setBlobError(error.message || 'Netzwerkfehler');
+    } finally {
+      setIsSavingBlob(false);
+    }
+  };
+
+  // useEffect: Blob-Liste beim Öffnen des Blob-Modus laden
+  useEffect(() => {
+    if (uploadMode === 'blob') {
+      loadBlobBewilligungen();
+    }
+  }, [uploadMode]);
 
   const processExcelFile = async (file: File) => {
     setIsProcessing(true);
@@ -800,57 +982,212 @@ export default function Home() {
           </p>
         </div>
         </div>
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6 print:hidden">
-          <h3 className="text-lg font-semibold text-green-900 mb-4">
-            Schritt 2: Bewilligte Leistungen
-          </h3>
+        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 print:hidden">
+          <h2 className="text-2xl font-bold text-purple-700 mb-6 flex items-center gap-2">
+            <span>📋</span> Schritt 2: Bewilligte Leistungen
+          </h2>
 
-        <div className="mb-6">
-          <p className="text-sm text-gray-600 mb-3">
-            <strong>Option A:</strong> Excel-Datei hochladen
-          </p>
+          {/* Tab-Navigation */}
+          <div className="flex gap-2 mb-6 border-b border-gray-200">
+            <button
+              onClick={() => setUploadMode('manual')}
+              className={`px-6 py-3 font-medium transition-all ${
+                uploadMode === 'manual'
+                  ? 'text-green-600 border-b-2 border-green-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              📤 Manueller Upload
+            </button>
+            <button
+              onClick={() => setUploadMode('blob')}
+              className={`px-6 py-3 font-medium transition-all ${
+                uploadMode === 'blob'
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              ☁️ Aus Blob laden
+            </button>
+            {excelFile && (
+              <button
+                onClick={() => setUploadMode('save')}
+                className={`px-6 py-3 font-medium transition-all ${
+                  uploadMode === 'save'
+                    ? 'text-purple-600 border-b-2 border-purple-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                💾 In Blob speichern
+              </button>
+            )}
+          </div>
 
-          <div
-            onClick={() => document.getElementById('excel-input')?.click()}
-            className="border-2 border-dashed border-green-400 rounded-xl p-6 text-center hover:border-green-600 transition-all cursor-pointer"
-          >
-            {!excelFile ? (
-              <>
-                <div className="text-4xl mb-2">📊</div>
-                <div className="text-md text-green-600 font-medium mb-1">
-                  Excel-Datei hochladen
+          {/* Fehleranzeige */}
+          {blobError && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+              ⚠️ {blobError}
+            </div>
+          )}
+
+          {/* Modus: Manueller Upload */}
+          {uploadMode === 'manual' && (
+            <div className="mb-6">
+              <p className="text-sm text-gray-600 mb-3">
+                <strong>Option A:</strong> Excel-Datei hochladen
+              </p>
+
+              <div
+                onClick={() => document.getElementById('excel-input')?.click()}
+                className="border-2 border-dashed border-green-400 rounded-xl p-8 text-center bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 transition-all cursor-pointer"
+              >
+                <input
+                  id="excel-input"
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setExcelFile(file);
+                      processExcelFile(file);
+                    }
+                  }}
+                  className="hidden"
+                />
+                <div className="flex flex-col items-center space-y-4">
+                  <svg className="w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <div>
+                    <p className="text-lg font-semibold text-gray-700">
+                      Excel-Datei hochladen
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Format: bewilligung_[nachname]_[DD.MM.YY]-[DD.MM.YY].xlsx
+                    </p>
+                  </div>
                 </div>
-              </>
-            ) : (
-              <div className="flex items-center justify-between bg-green-100 rounded-lg px-4 py-2">
-                <span className="text-green-800 font-medium text-sm">
-                  {excelFile.name}
-                </span>
+              </div>
+
+              {excelFile && (
+                <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-green-800">
+                        ✓ {excelFile.name}
+                      </p>
+                      <p className="text-sm text-green-600">
+                        {(excelFile.size / 1024).toFixed(1)} KB
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setUploadMode('save')}
+                      className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-all"
+                    >
+                      💾 Jetzt speichern
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Modus: Aus Blob laden */}
+          {uploadMode === 'blob' && (
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm text-gray-600">
+                  <strong>Gespeicherte Bewilligungen:</strong>
+                </p>
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setExcelFile(null);
-                  } }
-                  className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 text-xs"
+                  onClick={loadBlobBewilligungen}
+                  disabled={isLoadingBlob}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all disabled:opacity-50"
                 >
-                  X
+                  🔄 Aktualisieren
                 </button>
               </div>
-            )}
-            <input
-              id="excel-input"
-              type="file"
-              accept=".xlsx,.xls"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  setExcelFile(file);
-                  processExcelFile(file);
-                }
-              } }
-              className="hidden" />
-          </div>
-        </div>
+
+              {isLoadingBlob ? (
+                <div className="p-8 text-center">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <p className="mt-2 text-gray-600">Lade Bewilligungen...</p>
+                </div>
+              ) : blobBewilligungen.length === 0 ? (
+                <div className="p-8 text-center bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-gray-600">
+                    📭 Keine gespeicherten Bewilligungen gefunden
+                  </p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Lade eine Datei manuell hoch und speichere sie in Blob
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {blobBewilligungen.map((bewilligung, idx) => (
+                    <div
+                      key={idx}
+                      className="p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-all cursor-pointer"
+                      onClick={() => loadBewilligungFromBlob(bewilligung.url, bewilligung.filename)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-blue-800">
+                            📄 {bewilligung.filename}
+                          </p>
+                          <p className="text-sm text-blue-600">
+                            {(bewilligung.size / 1024).toFixed(1)} KB • {new Date(bewilligung.uploadedAt).toLocaleDateString('de-DE')}
+                          </p>
+                        </div>
+                        <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Modus: In Blob speichern */}
+          {uploadMode === 'save' && excelFile && (
+            <div className="mb-6">
+              <div className="p-6 bg-purple-50 border border-purple-200 rounded-xl">
+                <h3 className="text-lg font-semibold text-purple-700 mb-4">
+                  💾 Bewilligung in Vercel Blob speichern
+                </h3>
+
+                <div className="mb-4 p-4 bg-white rounded-lg border border-purple-200">
+                  <p className="font-medium text-gray-800">
+                    Dateiname: <span className="text-purple-600">{excelFile.name}</span>
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Größe: {(excelFile.size / 1024).toFixed(1)} KB
+                  </p>
+                </div>
+
+                <button
+                  onClick={saveBewilligungToBlob}
+                  disabled={isSavingBlob}
+                  className="w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-lg hover:from-purple-600 hover:to-indigo-600 transition-all font-medium shadow-md hover:shadow-lg disabled:opacity-50"
+                >
+                  {isSavingBlob ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Speichere...
+                    </span>
+                  ) : (
+                    '💾 Jetzt in Blob speichern'
+                  )}
+                </button>
+
+                <p className="text-sm text-gray-600 mt-3 text-center">
+                  Nach dem Speichern ist die Datei unter "Aus Blob laden" verfügbar
+                </p>
+              </div>
+            </div>
+          )}
 
         {isProcessing && (
           <div className="text-center py-4">
