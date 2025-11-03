@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
     const blob = await put(`bewilligungen/${filename}`, file, {
       access: 'public',
-      token: process.env.BLOB_READ_WRITE_TOKEN,
+      token: process.env.read_write_token_READ_WRITE_TOKEN,
     });
 
     return NextResponse.json({

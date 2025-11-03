@@ -5,9 +5,9 @@ export const runtime = 'edge';
 
 export async function GET() {
   try {
+    // Vercel stellt die Token automatisch bereit wenn Blob Store verbunden ist
     const { blobs } = await list({
       prefix: 'bewilligungen/',
-      token: process.env.BLOB_READ_WRITE_TOKEN,
     });
 
     const bewilligungen = blobs.map(blob => ({
