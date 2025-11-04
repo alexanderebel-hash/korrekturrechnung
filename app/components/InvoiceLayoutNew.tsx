@@ -66,10 +66,26 @@ export default function InvoiceLayoutNew({
           @page {
             size: A4 portrait;
             margin: 1cm 1.25cm 2.54cm 1.75cm;
+            background: white;
+          }
+
+          /* Entferne alle Hintergründe außer Tabelle */
+          body {
+            background: white !important;
+          }
+
+          .new-invoice-content {
+            background: white !important;
+            max-width: 100% !important;
+            padding: 0 !important;
+          }
+
+          /* Alle Container weiß */
+          .new-invoice-content > * {
+            background: white !important;
           }
 
           /* Container anpassen */
-          body,
           .fixed.inset-0,
           .fixed.inset-0 > div {
             position: static !important;
@@ -83,10 +99,13 @@ export default function InvoiceLayoutNew({
             margin: 0 !important;
           }
 
-          /* Invoice Container */
-          .new-invoice-content {
-            max-width: 100% !important;
-            padding: 0 !important;
+          /* Nur spezifische Farben behalten */
+          .new-invoice-content tr[style*="#FEF2F2"] {
+            background: #FEF2F2 !important;
+          }
+
+          .new-invoice-content div[style*="#FFF7ED"] {
+            background: #FFF7ED !important;
           }
 
           /* Tabellen-Pagination */
