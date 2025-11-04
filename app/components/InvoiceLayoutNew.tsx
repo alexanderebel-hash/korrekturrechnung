@@ -51,26 +51,15 @@ export default function InvoiceLayoutNew({
       {/* Print Styles - NUR für diese Komponente */}
       <style dangerouslySetInnerHTML={{__html: `
         @media print {
-          /* Verstecke alles außer der neuen Rechnung */
-          body > *:not(.new-invoice-print-wrapper) {
+          /* Alles anzeigen */
+          * {
+            visibility: visible !important;
+          }
+
+          /* Nur UI-Elemente verstecken */
+          button,
+          .sticky.top-0 {
             display: none !important;
-          }
-
-          /* Zeige nur den neuen Invoice Container */
-          .new-invoice-print-wrapper {
-            display: block !important;
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            background: white !important;
-          }
-
-          .new-invoice-content {
-            max-width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            box-shadow: none !important;
           }
 
           /* Page Setup */
@@ -79,36 +68,50 @@ export default function InvoiceLayoutNew({
             margin: 1cm 1.25cm 2.54cm 1.75cm;
           }
 
-          /* Tabellen */
-          .new-invoice-content table {
-            page-break-inside: auto;
-            width: 100%;
+          /* Container anpassen */
+          body,
+          .fixed.inset-0,
+          .fixed.inset-0 > div {
+            position: static !important;
+            background: white !important;
+            max-width: 100% !important;
+            max-height: none !important;
+            overflow: visible !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
           }
 
-          .new-invoice-content thead {
+          /* Invoice Container */
+          .new-invoice-content {
+            max-width: 100% !important;
+            padding: 0 !important;
+          }
+
+          /* Tabellen-Pagination */
+          table {
+            page-break-inside: auto;
+          }
+          thead {
             display: table-header-group;
           }
-
-          .new-invoice-content tr {
+          tr {
             page-break-inside: avoid;
-            page-break-after: auto;
           }
-
-          .new-invoice-content td,
-          .new-invoice-content th {
+          td, th {
             page-break-inside: avoid;
           }
 
-          /* Farben erhalten */
-          .new-invoice-content * {
+          /* Farben behalten */
+          * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
         }
       `}} />
 
-      <div className="new-invoice-print-wrapper">
-        <div className="new-invoice-content bg-white p-8" style={{ maxWidth: '210mm', margin: '0 auto' }}>
+      <div className="new-invoice-content bg-white p-8" style={{ maxWidth: '210mm', margin: '0 auto' }}>
 
       {/* Logo oben links */}
       <div className="mb-4">
@@ -455,7 +458,6 @@ export default function InvoiceLayoutNew({
           AG Berlin Charlottenburg • HRB 87436 B • Steuernummer: 29/582/51396
         </p>
       </div>
-        </div>
       </div>
     </>
   );
