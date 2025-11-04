@@ -51,52 +51,50 @@ export default function InvoiceLayoutNew({
       {/* Print Styles - NUR für diese Komponente */}
       <style dangerouslySetInnerHTML={{__html: `
         @media print {
-          /* Alles anzeigen */
-          * {
-            visibility: visible !important;
+          /* KRITISCH: Chrome Bug Fix - Transitions müssen als erstes disabled werden */
+          *,
+          *::before,
+          *::after {
+            transition: none !important;
+            animation: none !important;
           }
 
-          /* Nur UI-Elemente verstecken */
-          button,
-          .sticky.top-0 {
-            display: none !important;
-          }
-
-          /* Page Setup */
-          @page {
-            size: A4 portrait;
-            margin: 1cm 1.25cm 2.54cm 1.75cm;
-            background: white;
-          }
-
-          /* Entferne alle Hintergründe außer Tabelle */
+          /* Body und HTML komplett weiß */
+          html,
           body {
             background: white !important;
+            background-color: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
           }
 
-          .new-invoice-content {
+          /* Modal Container komplett zurücksetzen */
+          .fixed.inset-0,
+          .fixed,
+          [class*="fixed"] {
+            position: static !important;
             background: white !important;
-            max-width: 100% !important;
+            background-color: white !important;
             padding: 0 !important;
+            margin: 0 !important;
+            inset: auto !important;
           }
 
           /* Alle Container weiß */
-          .new-invoice-content > * {
+          .new-invoice-content,
+          .new-invoice-content * {
             background: white !important;
+            border: none !important;
+            box-shadow: none !important;
           }
 
-          /* Container anpassen */
-          .fixed.inset-0,
-          .fixed.inset-0 > div {
-            position: static !important;
+          /* Inline styles überschreiben */
+          [style*="background"],
+          [style*="border"],
+          [style*="box-shadow"] {
             background: white !important;
-            max-width: 100% !important;
-            max-height: none !important;
-            overflow: visible !important;
+            border: none !important;
             box-shadow: none !important;
-            border-radius: 0 !important;
-            padding: 0 !important;
-            margin: 0 !important;
           }
 
           /* Nur spezifische Farben behalten */
@@ -106,26 +104,37 @@ export default function InvoiceLayoutNew({
 
           .new-invoice-content div[style*="#FFF7ED"] {
             background: #FFF7ED !important;
+            border: 2px solid #F97316 !important;
+            border-left: 6px solid #F97316 !important;
           }
 
-          /* Tabellen-Pagination */
+          /* Text-Farben behalten */
+          span[style*="color"] {
+            color: inherit !important;
+          }
+
+          /* Page Setup */
+          @page {
+            size: A4 portrait;
+            margin: 1cm 1.25cm 2.54cm 1.75cm;
+            background: white;
+          }
+
+          /* Tabellen */
           table {
             page-break-inside: auto;
           }
+
           thead {
             display: table-header-group;
           }
+
           tr {
             page-break-inside: avoid;
           }
+
           td, th {
             page-break-inside: avoid;
-          }
-
-          /* Farben behalten */
-          * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
           }
         }
       `}} />
