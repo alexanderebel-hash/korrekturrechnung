@@ -1434,7 +1434,7 @@ export default function Home() {
 
         {rechnungPositionen.filter(p => p.menge > 0).length > 0 && (
           <>
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-lg p-6 mb-6 border-2 border-purple-200 print:hidden">
+            <div className="hidden bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-lg p-6 mb-6 border-2 border-purple-200 print:hidden">
               <h3 className="text-lg font-semibold text-purple-900 mb-4 flex items-center gap-2">
                 <span>📊</span> Theoretische Gesamtrechnung (alle Positionen)
               </h3>
@@ -1472,7 +1472,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-6 mb-6 print:hidden">
+            <div className="hidden bg-white rounded-xl shadow-lg p-6 mb-6 print:hidden">
               <h3 className="text-lg font-semibold text-indigo-900 mb-4">
                 Korrekturrechnung - Tatsächliche Abrechnung
               </h3>
