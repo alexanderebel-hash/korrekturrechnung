@@ -2226,6 +2226,13 @@ export default function Home() {
                   >
                     🖨️ Drucken/PDF
                   </button>
+                  <input
+                    type="text"
+                    placeholder="Rechnung Nr. (optional)"
+                    value={rechnungsnummer}
+                    onChange={(e) => setRechnungsnummer(e.target.value)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 w-48"
+                  />
                   <button
                     onClick={() => setShowPreviewNew(false)}
                     className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
@@ -2255,7 +2262,7 @@ export default function Home() {
                   bic: dienst.bic,
                   bank: dienst.bank
                 }}
-                rechnungsNummer={klientData.belegNr}
+                rechnungsNummer={rechnungsnummer || "XXXXXX"}
                 debitorNummer={klientData.debitor}
                 zeitraumVon={klientData.zeitraumVon}
                 zeitraumBis={klientData.zeitraumBis}
