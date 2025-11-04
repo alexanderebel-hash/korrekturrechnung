@@ -111,7 +111,7 @@ export default function InvoiceLayoutNew({
         }
       `}} />
 
-      <div className="new-invoice-content bg-white p-8" style={{ maxWidth: '210mm', margin: '0 auto' }}>
+      <div className="new-invoice-content bg-white p-8" style={{ maxWidth: '210mm', margin: '0 auto', border: 'none', boxShadow: 'none' }}>
 
       {/* Logo oben links */}
       <div className="mb-4">
@@ -127,7 +127,7 @@ export default function InvoiceLayoutNew({
         fontSize: '8pt',
         color: '#6B7280',
         marginBottom: '12px',
-        borderBottom: '1px solid #E5E7EB',
+        borderBottom: 'none',
         paddingBottom: '4px'
       }}>
         DomusVita Gesundheit GmbH, Waldemarstr. 10 A, 10999 Berlin
@@ -155,12 +155,12 @@ export default function InvoiceLayoutNew({
 
       {/* Rechnungsinformationen Box */}
       <div style={{
-        border: '1px solid #E5E7EB',
+        border: 'none',
         padding: '12px',
         marginBottom: '16px',
         fontSize: '9pt',
-        background: '#F9FAFB',
-        borderRadius: '4px'
+        background: 'white',
+        borderRadius: '0'
       }}>
         <div className="flex justify-between">
           <div>
@@ -176,11 +176,11 @@ export default function InvoiceLayoutNew({
 
       {/* Klientendaten Box */}
       <div style={{
-        border: '1px solid #E5E7EB',
+        border: 'none',
         padding: '12px',
         marginBottom: '20px',
         fontSize: '9pt',
-        borderRadius: '4px'
+        borderRadius: '0'
       }}>
         <div className="flex justify-between">
           <div>
@@ -204,8 +204,8 @@ export default function InvoiceLayoutNew({
       }}>
         <thead>
           <tr style={{
-            background: '#F3F4F6',
-            borderBottom: '2px solid #4F46E5'
+            background: 'white',
+            borderBottom: 'none'
           }}>
             <th style={{
               padding: '8px',
@@ -255,7 +255,7 @@ export default function InvoiceLayoutNew({
               key={`lk-${idx}`}
               style={{
                 background: !pos.bewilligt ? '#FEF2F2' : '',
-                borderBottom: '1px solid #E5E7EB'
+                borderBottom: 'none'
               }}
             >
               {/* LK-Code */}
@@ -346,7 +346,7 @@ export default function InvoiceLayoutNew({
           ))}
 
           {/* Zwischensumme */}
-          <tr style={{ background: '#F3F4F6', fontWeight: 'bold' }}>
+          <tr style={{ background: 'white', fontWeight: 'bold' }}>
             <td colSpan={4} style={{ padding: '8px', textAlign: 'right' }}>
               Zwischensumme:
             </td>
@@ -369,7 +369,7 @@ export default function InvoiceLayoutNew({
           </tr>
 
           {/* Gesamtbetrag */}
-          <tr style={{ background: '#F3F4F6', fontWeight: 'bold' }}>
+          <tr style={{ background: 'white', fontWeight: 'bold' }}>
             <td colSpan={4} style={{ padding: '8px', textAlign: 'right' }}>
               Gesamtbetrag:
             </td>
@@ -390,7 +390,7 @@ export default function InvoiceLayoutNew({
 
           {/* RECHNUNGSBETRAG */}
           <tr style={{
-            background: '#C7D2FE',
+            background: 'white',
             fontWeight: 'bold',
             fontSize: '11pt'
           }}>
@@ -433,7 +433,7 @@ export default function InvoiceLayoutNew({
 
       {/* Footer mit Firmendaten */}
       <div style={{
-        borderTop: '2px solid #4F46E5',
+        borderTop: 'none',
         paddingTop: '12px',
         fontSize: '8pt',
         textAlign: 'center',
