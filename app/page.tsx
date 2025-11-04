@@ -1656,6 +1656,32 @@ export default function Home() {
                 </div>
               </div>
             </div>
+
+            {/* Button für neue Rechnung - außerhalb des versteckten Bereichs */}
+            <div className="bg-white rounded-xl shadow-lg p-6 mb-6 print:hidden">
+              <div className="mt-6 space-y-4">
+                <div className="border-t pt-4">
+                  <h4 className="font-semibold text-gray-800 mb-3">Korrekturrechnung BA:</h4>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setShowPreviewNew(true)}
+                      className="flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 font-medium"
+                    >
+                      📄 Vorschau BA (Neu)
+                    </button>
+                  </div>
+                </div>
+
+                <div className="border-t pt-4">
+                  <button
+                    onClick={handleNeueRechnung}
+                    className="w-full bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 font-medium"
+                  >
+                    🔄 Neue Korrekturrechnung erstellen
+                  </button>
+                </div>
+              </div>
+            </div>
           </>
         )}
 
@@ -2219,13 +2245,7 @@ export default function Home() {
                 <h3 className="text-xl font-bold text-indigo-600">
                   📄 Korrekturrechnung BA (Neues Layout)
                 </h3>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => window.print()}
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-                  >
-                    🖨️ Drucken/PDF
-                  </button>
+                <div className="flex gap-2 items-center">
                   <input
                     type="text"
                     placeholder="Rechnung Nr. (optional)"
@@ -2233,6 +2253,12 @@ export default function Home() {
                     onChange={(e) => setRechnungsnummer(e.target.value)}
                     className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 w-48"
                   />
+                  <button
+                    onClick={() => window.print()}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                  >
+                    🖨️ Drucken/PDF
+                  </button>
                   <button
                     onClick={() => setShowPreviewNew(false)}
                     className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
