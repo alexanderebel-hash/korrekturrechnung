@@ -225,6 +225,8 @@ export default function Home() {
   const [isLoadingBlob, setIsLoadingBlob] = useState(false);
   const [isSavingBlob, setIsSavingBlob] = useState(false);
   const [blobError, setBlobError] = useState('');
+  const zeitraumVonDisplay = formatDateDisplay(klientData.zeitraumVon);
+  const zeitraumBisDisplay = formatDateDisplay(klientData.zeitraumBis);
 
   useEffect(() => {
     setAbrechnungszeitraumVon(klientData.zeitraumVon);
@@ -2062,7 +2064,7 @@ export default function Home() {
                         </div>
                       </div>
                       <p style={{ fontSize: '9pt', lineHeight: '11pt', marginTop: '6px', margin: 0 }}>
-                        <strong>Abrechnungszeitraum:</strong> {klientData.zeitraumVon} bis {klientData.zeitraumBis}
+                        <strong>Abrechnungszeitraum:</strong> {zeitraumVonDisplay} bis {zeitraumBisDisplay}
                       </p>
                     </div>
 
@@ -2346,7 +2348,7 @@ export default function Home() {
                   <div className="invoice-meta" style={{ border: '1px solid #E5E7EB', padding: '8px', marginBottom: '12px', fontSize: '10pt', lineHeight: '12.7pt' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                       <div>
-                        <p style={{ margin: 0 }}><strong>Abrechnungszeitraum:</strong> {klientData.zeitraumVon} bis {klientData.zeitraumBis}</p>
+                        <p style={{ margin: 0 }}><strong>Abrechnungszeitraum:</strong> {zeitraumVonDisplay} bis {zeitraumBisDisplay}</p>
                         <p style={{ margin: '2px 0 0 0' }}><strong>Leistungsempfaenger:</strong> {klientData.name}</p>
                       </div>
                       <div>
@@ -2466,8 +2468,8 @@ export default function Home() {
                 }}
                 rechnungsNummer={rechnungsnummer || "XXXXXX"}
                 debitorNummer={klientData.debitor}
-                zeitraumVon={klientData.zeitraumVon}
-                zeitraumBis={klientData.zeitraumBis}
+                zeitraumVon={zeitraumVonDisplay}
+                zeitraumBis={zeitraumBisDisplay}
                 rechnungsdatum={new Date().toLocaleDateString('de-DE')}
                 pflegekassenBetrag={pflegekassenBetrag}
                 logoUrl={logoUrl}
