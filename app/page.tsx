@@ -122,6 +122,24 @@ const PFLEGEGRAD_SACHLEISTUNG: { [key: number]: number } = {
   5: 2299.00
 };
 
+const formatDateDisplay = (isoDate: string) => {
+  if (!isoDate) {
+    return '';
+  }
+
+  const parts = isoDate.split('-');
+  if (parts.length !== 3) {
+    return isoDate;
+  }
+
+  const [year, month, day] = parts;
+  if (!year || !month || !day) {
+    return isoDate;
+  }
+
+  return `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
+};
+
 export default function Home() {
   const logoUrl = '/logo.png';
   
@@ -1078,7 +1096,7 @@ export default function Home() {
             </label>
             <input
               type="text"
-              value={abrechnungszeitraumVon}
+              value={formatDateDisplay(abrechnungszeitraumVon)}
               readOnly
               className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
             />
@@ -1089,7 +1107,7 @@ export default function Home() {
             </label>
             <input
               type="text"
-              value={abrechnungszeitraumBis}
+              value={formatDateDisplay(abrechnungszeitraumBis)}
               readOnly
               className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
             />
