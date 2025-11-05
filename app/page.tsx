@@ -140,6 +140,58 @@ const formatDateDisplay = (isoDate: string) => {
   return `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
 };
 
+const extractKlientName = (rows: any[]): string => {
+  if (!rows || rows.length === 0) {
+    return '';
+  }
+
+  const normalizeKey = (key: string) => key.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const candidateKeys = [
+    'name', 'nameklient', 'klient', 'klientname', 'bewohner', 'bewohnername',
+    'versicherter', 'versicherte', 'versichertenname', 'patient', 'patientname',
+    'kunde', 'kundenname'
+  ];
+  const candidateKeySet = new Set(candidateKeys);
+
+  const firstNameKeys = ['vorname', 'firstname'];
+  const lastNameKeys = ['nachname', 'lastname', 'familienname'];
+
+  for (const row of rows) {
+    if (!row || typeof row !== 'object') {
+      continue;
+    }
+
+    const keys = Object.keys(row);
+    let detectedFirstName = '';
+    let detectedLastName = '';
+
+    for (const key of keys) {
+      const normalizedKey = normalizeKey(key);
+      const value = row[key];
+
+      if (typeof value === 'string' && value.trim()) {
+        if (candidateKeySet.has(normalizedKey)) {
+          return value.trim();
+        }
+
+        if (firstNameKeys.includes(normalizedKey)) {
+          detectedFirstName = value.trim();
+        }
+
+        if (lastNameKeys.includes(normalizedKey)) {
+          detectedLastName = value.trim();
+        }
+      }
+    }
+
+    if (detectedFirstName && detectedLastName) {
+      return `${detectedLastName}, ${detectedFirstName}`;
+    }
+  }
+
+  return '';
+};
+
 export default function Home() {
   const logoUrl = '/logo.png';
   
@@ -513,6 +565,15 @@ export default function Home() {
       })).filter(row => row.lkCode && (row.jeWoche > 0 || row.jeMonat > 0));
 
       setBewilligung(bewilligungData);
+      
+      const extractedName = extractKlientName(rawData);
+      if (extractedName) {
+        setKlientData(prev => ({
+          ...prev,
+          name: extractedName
+        }));
+      }
+
       setIsProcessing(false);
       
       if (bewilligungData.length === 0) {
