@@ -657,18 +657,6 @@ export default function Home() {
     const baZahltNurZINV = gesamtbetrag < pflegekassenBetrag;
     const finalRechnungsbetragBA = baZahltNurZINV ? zinv : rechnungsbetragBA;
 
-    // Sortierung: AUB vor LK, dann nach Nummer
-    positionen.sort((a, b) => {
-      // Erst nach Typ: AUB vor LK
-      if (a.lkCode.startsWith('AUB') && !b.lkCode.startsWith('AUB')) return -1;
-      if (!a.lkCode.startsWith('AUB') && b.lkCode.startsWith('AUB')) return 1;
-
-      // Dann nach Nummer
-      const numA = parseInt(a.lkCode.replace(/[^\d]/g, '')) || 0;
-      const numB = parseInt(b.lkCode.replace(/[^\d]/g, '')) || 0;
-      return numA - numB;
-    });
-
     // LK14 hinzufügen wenn in Medifox vorhanden aber zu LK15 umgewandelt
     const lk14InMedifox = rechnungPositionen.find(pos => pos.lkCode === 'LK14');
     if (lk14InMedifox && !positionen.find(p => p.lkCode === 'LK14')) {
@@ -682,6 +670,21 @@ export default function Home() {
         umgewandeltZu: 'LK15'
       });
     }
+
+    // Sortierung NACH LK14-Hinzufügung: Erst alle AUBs (1-20), dann alle LKs (01-20)
+    positionen.sort((a, b) => {
+      const aIsAUB = a.lkCode.startsWith('AUB');
+      const bIsAUB = b.lkCode.startsWith('AUB');
+
+      // Typ-Priorität: AUB kommt vor LK
+      if (aIsAUB && !bIsAUB) return -1;
+      if (!aIsAUB && bIsAUB) return 1;
+
+      // Innerhalb der Gruppe: numerisch sortieren
+      const numA = parseInt(a.lkCode.replace(/\D/g, '')) || 0;
+      const numB = parseInt(b.lkCode.replace(/\D/g, '')) || 0;
+      return numA - numB;
+    });
 
     return {
       allePositionen: positionen,
