@@ -140,53 +140,29 @@ const formatDateDisplay = (isoDate: string) => {
   return `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
 };
 
-const extractKlientName = (rows: any[]): string => {
-  if (!rows || rows.length === 0) {
+const extractKlientName = (workbook: XLSX.WorkBook): string => {
+  const stammdatenSheet = workbook.Sheets['Stammdaten'];
+  if (!stammdatenSheet) {
     return '';
   }
 
-  const normalizeKey = (key: string) => key.toLowerCase().replace(/[^a-z0-9]/g, '');
-  const candidateKeys = [
-    'name', 'nameklient', 'klient', 'klientname', 'bewohner', 'bewohnername',
-    'versicherter', 'versicherte', 'versichertenname', 'patient', 'patientname',
-    'kunde', 'kundenname'
-  ];
-  const candidateKeySet = new Set(candidateKeys);
-
-  const firstNameKeys = ['vorname', 'firstname'];
-  const lastNameKeys = ['nachname', 'lastname', 'familienname'];
-
-  for (const row of rows) {
-    if (!row || typeof row !== 'object') {
-      continue;
+  const getCell = (cellRef: string) => {
+    const cell = stammdatenSheet[cellRef];
+    if (cell && typeof cell.v === 'string') {
+      return cell.v.trim();
     }
+    return '';
+  };
 
-    const keys = Object.keys(row);
-    let detectedFirstName = '';
-    let detectedLastName = '';
+  const lastName = getCell('A2');
+  const firstName = getCell('B2');
 
-    for (const key of keys) {
-      const normalizedKey = normalizeKey(key);
-      const value = row[key];
+  if (lastName && firstName) {
+    return `${lastName}, ${firstName}`;
+  }
 
-      if (typeof value === 'string' && value.trim()) {
-        if (candidateKeySet.has(normalizedKey)) {
-          return value.trim();
-        }
-
-        if (firstNameKeys.includes(normalizedKey)) {
-          detectedFirstName = value.trim();
-        }
-
-        if (lastNameKeys.includes(normalizedKey)) {
-          detectedLastName = value.trim();
-        }
-      }
-    }
-
-    if (detectedFirstName && detectedLastName) {
-      return `${detectedLastName}, ${detectedFirstName}`;
-    }
+  if (lastName || firstName) {
+    return [lastName, firstName].filter(Boolean).join(', ');
   }
 
   return '';
@@ -566,7 +542,7 @@ export default function Home() {
 
       setBewilligung(bewilligungData);
       
-      const extractedName = extractKlientName(rawData);
+      const extractedName = extractKlientName(workbook);
       if (extractedName) {
         setKlientData(prev => ({
           ...prev,
