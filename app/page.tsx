@@ -16,7 +16,7 @@ interface KlientData {
   zeitraumVon: string;
   zeitraumBis: string;
   geburtsdatum: string;
-  pflegegrad: number;
+  pflegegrad: number | '';
   debitor: string;
   belegNr: string;
   genehmigungsDatum: string;
@@ -133,7 +133,7 @@ export default function Home() {
     zeitraumVon: '',
     zeitraumBis: '',
     geburtsdatum: '',
-    pflegegrad: 3,
+    pflegegrad: '',
     debitor: '62202',
     belegNr: '13400',
     genehmigungsDatum: '06.01.2025',
@@ -142,6 +142,9 @@ export default function Home() {
   
   const dienst = PFLEGEDIENSTE[pflegedienstKey];
   const klientAdresse = WOHNHEIME[wohnheimKey];
+  const [abrechnungszeitraumVon, setAbrechnungszeitraumVon] = useState('');
+  const [abrechnungszeitraumBis, setAbrechnungszeitraumBis] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState('');
   
   const [bewilligung, setBewilligung] = useState<BewilligungRow[]>([]);
   const [excelFile, setExcelFile] = useState<File | null>(null);
@@ -149,7 +152,7 @@ export default function Home() {
   const [rechnungPositionen, setRechnungPositionen] = useState<RechnungsPosition[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string>('');
-  const [pflegekassenBetrag, setPflegekassenBetrag] = useState<number>(1497.00);
+  const [pflegekassenBetrag, setPflegekassenBetrag] = useState<number>(0);
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [showPrivatPreview, setShowPrivatPreview] = useState(false);
   const [showPreviewNew, setShowPreviewNew] = useState(false);
@@ -177,6 +180,24 @@ export default function Home() {
   const [isSavingBlob, setIsSavingBlob] = useState(false);
   const [blobError, setBlobError] = useState('');
 
+  useEffect(() => {
+    setAbrechnungszeitraumVon(klientData.zeitraumVon);
+    setAbrechnungszeitraumBis(klientData.zeitraumBis);
+
+    if (klientData.zeitraumVon) {
+      const [year, month] = klientData.zeitraumVon.split('-');
+      if (year && month) {
+        const normalizedMonth = `${year}-${month.padStart(2, '0')}`;
+        setSelectedMonth(prev =>
+          prev === normalizedMonth ? prev : normalizedMonth
+        );
+        return;
+      }
+    }
+
+    setSelectedMonth(prev => (prev === '' ? prev : ''));
+  }, [klientData.zeitraumVon, klientData.zeitraumBis]);
+
   const ladeTestBewilligung = () => {
     const testBewilligung: BewilligungRow[] = [
       { lkCode: 'LK02', bezeichnung: 'Kleine Körperpflege', jeWoche: 1, jeMonat: 4 },
@@ -188,13 +209,14 @@ export default function Home() {
     setBewilligung(testBewilligung);
     
     // Klientendaten auch setzen
-    setKlientData({
-      ...klientData,
+    setKlientData(prev => ({
+      ...prev,
       name: 'Mustermann, Max',
       zeitraumVon: '2025-09-01',
       zeitraumBis: '2025-09-30',
       pflegegrad: 3
-    });
+    }));
+    setPflegekassenBetrag(PFLEGEGRAD_SACHLEISTUNG[3]);
   };
 
   const ladeTestRechnungspositionen = () => {
@@ -336,7 +358,7 @@ export default function Home() {
     // Metadata verarbeiten
     if (metadata) {
       if (metadata.klient) {
-        setKlientData({...klientData, name: metadata.klient});
+        setKlientData(prev => ({ ...prev, name: metadata.klient }));
       }
       if (metadata.zeitraum) {
         // Zeitraum z.B. "01.09.2025 - 30.09.2025" parsen
@@ -346,16 +368,20 @@ export default function Home() {
           // DD.MM.YYYY zu YYYY-MM-DD konvertieren
           const vonISO = von.split('.').reverse().join('-');
           const bisISO = bis.split('.').reverse().join('-');
-          setKlientData({
-            ...klientData,
+          setKlientData(prev => ({
+            ...prev,
             zeitraumVon: vonISO,
             zeitraumBis: bisISO,
-            name: metadata.klient || klientData.name
-          });
+            name: metadata.klient || prev.name
+          }));
         }
       }
       if (metadata.pflegegrad) {
-        setKlientData({...klientData, pflegegrad: metadata.pflegegrad, name: metadata.klient || klientData.name});
+        setKlientData(prev => ({
+          ...prev,
+          pflegegrad: metadata.pflegegrad,
+          name: metadata.klient || prev.name
+        }));
         setPflegekassenBetrag(PFLEGEGRAD_SACHLEISTUNG[metadata.pflegegrad] || pflegekassenBetrag);
       }
     }
@@ -496,12 +522,23 @@ export default function Home() {
   };
 
   const updateKlientData = (field: keyof KlientData, value: string | number) => {
-    const updated = { ...klientData, [field]: value };
     if (field === 'pflegegrad') {
-      const pg = value as number;
-      setPflegekassenBetrag(PFLEGEGRAD_SACHLEISTUNG[pg] || 0);
+      if (value === '') {
+        setKlientData(prev => ({ ...prev, pflegegrad: '' }));
+        setPflegekassenBetrag(0);
+        return;
+      }
+
+      const numericValue = typeof value === 'number' ? value : parseInt(value, 10);
+
+      if (!Number.isNaN(numericValue)) {
+        setKlientData(prev => ({ ...prev, pflegegrad: numericValue }));
+        setPflegekassenBetrag(PFLEGEGRAD_SACHLEISTUNG[numericValue] || 0);
+      }
+      return;
     }
-    setKlientData(updated);
+
+    setKlientData(prev => ({ ...prev, [field]: value }));
   };
 
   const addRechnungsPosition = () => {
@@ -972,37 +1009,90 @@ export default function Home() {
           <div>
             <label className="text-gray-600 block mb-1">Pflegegrad:</label>
             <select
-              value={klientData.pflegegrad}
-              onChange={(e) => updateKlientData('pflegegrad', parseInt(e.target.value))}
+              value={klientData.pflegegrad === '' ? '' : String(klientData.pflegegrad)}
+              onChange={(e) => updateKlientData('pflegegrad', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
-              <option value={1}>Pflegegrad 1 (131,00€)</option>
-              <option value={2}>Pflegegrad 2</option>
-              <option value={3}>Pflegegrad 3</option>
-              <option value={4}>Pflegegrad 4</option>
-              <option value={5}>Pflegegrad 5</option>
+              <option value="">Bitte wählen...</option>
+              <option value="1">Pflegegrad 1</option>
+              <option value="2">Pflegegrad 2</option>
+              <option value="3">Pflegegrad 3</option>
+              <option value="4">Pflegegrad 4</option>
+              <option value="5">Pflegegrad 5</option>
             </select>
           </div>
 
 
         </div>
 
+        {/* Monatsauswahl */}
+        <div className="mb-4 text-sm">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Abrechnungsmonat:
+          </label>
+          <input
+            type="month"
+            value={selectedMonth}
+            onChange={(e) => {
+              const month = e.target.value;
+              setSelectedMonth(month);
+
+              if (month) {
+                const [year, rawMonth] = month.split('-');
+                if (year && rawMonth) {
+                  const monthNumber = parseInt(rawMonth, 10);
+                  if (!Number.isNaN(monthNumber)) {
+                    const normalizedMonth = monthNumber.toString().padStart(2, '0');
+                    const firstDayISO = `${year}-${normalizedMonth}-01`;
+                    const lastDay = new Date(parseInt(year, 10), monthNumber, 0).getDate();
+                    const lastDayISO = `${year}-${normalizedMonth}-${String(lastDay).padStart(2, '0')}`;
+
+                    setAbrechnungszeitraumVon(firstDayISO);
+                    setAbrechnungszeitraumBis(lastDayISO);
+                    setKlientData(prev => ({
+                      ...prev,
+                      zeitraumVon: firstDayISO,
+                      zeitraumBis: lastDayISO
+                    }));
+                  }
+                }
+              } else {
+                setAbrechnungszeitraumVon('');
+                setAbrechnungszeitraumBis('');
+                setKlientData(prev => ({
+                  ...prev,
+                  zeitraumVon: '',
+                  zeitraumBis: ''
+                }));
+              }
+            }}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          />
+        </div>
+
+        {/* Automatisch befüllte Zeiträume (readonly) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
-            <label className="text-gray-600 block mb-1">Abrechnungszeitraum Von:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Abrechnungszeitraum Von:
+            </label>
             <input
-              type="date"
-              value={klientData.zeitraumVon}
-              onChange={(e) => updateKlientData('zeitraumVon', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+              type="text"
+              value={abrechnungszeitraumVon}
+              readOnly
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
+            />
           </div>
           <div>
-            <label className="text-gray-600 block mb-1">Abrechnungszeitraum Bis:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Abrechnungszeitraum Bis:
+            </label>
             <input
-              type="date"
-              value={klientData.zeitraumBis}
-              onChange={(e) => updateKlientData('zeitraumBis', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+              type="text"
+              value={abrechnungszeitraumBis}
+              readOnly
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
+            />
           </div>
         </div>
 
@@ -1540,14 +1630,16 @@ export default function Home() {
                   </p>
                   <div className="flex items-center gap-2">
                     <select
-                      value={klientData.pflegegrad}
-                      onChange={(e) => updateKlientData('pflegegrad', parseInt(e.target.value))}
+                      value={klientData.pflegegrad === '' ? '' : String(klientData.pflegegrad)}
+                      onChange={(e) => updateKlientData('pflegegrad', e.target.value)}
                       className="px-2 py-1 border rounded text-sm"
                     >
-                      <option value={2}>PG 2</option>
-                      <option value={3}>PG 3</option>
-                      <option value={4}>PG 4</option>
-                      <option value={5}>PG 5</option>
+                      <option value="">Bitte wählen...</option>
+                      <option value="1">PG 1</option>
+                      <option value="2">PG 2</option>
+                      <option value="3">PG 3</option>
+                      <option value="4">PG 4</option>
+                      <option value="5">PG 5</option>
                     </select>
                     <input
                       type="number"
