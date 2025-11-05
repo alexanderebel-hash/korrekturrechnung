@@ -39,7 +39,19 @@ export default function InvoiceLayoutNew({
     ...(rechnung.aubBewilligt || []),
     ...(rechnung.nichtBewilligtePositionen || []),
     ...(rechnung.aubNichtBewilligt || [])
-  ];
+  ].sort((a, b) => {
+    const aIsAUB = a.lkCode.startsWith('AUB');
+    const bIsAUB = b.lkCode.startsWith('AUB');
+
+    // Erst alle AUBs, dann alle LKs
+    if (aIsAUB && !bIsAUB) return -1;
+    if (!aIsAUB && bIsAUB) return 1;
+
+    // Innerhalb der Gruppe numerisch sortieren
+    const numA = parseInt(a.lkCode.replace(/\D/g, '')) || 0;
+    const numB = parseInt(b.lkCode.replace(/\D/g, '')) || 0;
+    return numA - numB;
+  });
 
   // Zahlungsfrist berechnen (30 Tage)
   const zahlungsfrist = new Date(rechnungsdatum);
