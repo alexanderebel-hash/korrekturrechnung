@@ -311,10 +311,9 @@ export default function InvoiceLayoutNew({
                     display: 'inline-block',
                     color: '#2563EB',
                     marginLeft: '8px',
-                    fontSize: '8pt',
-                    fontStyle: 'normal'
+                    fontSize: '8pt'
                   }}>
-                    → in {pos.umgewandeltZu} umgewandelt
+                    → erbracht, aktuell nicht bewilligt, umgewandelt in {pos.umgewandeltZu}
                   </span>
                 )}
 

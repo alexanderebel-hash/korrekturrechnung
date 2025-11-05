@@ -646,17 +646,43 @@ export default function Home() {
     
     const bewilligtePositionen = positionen.filter(p => p.bewilligt);
     const aubPositionen = berechneAUBs(bewilligtePositionen);
-    
+
     const gesamtBewilligt = bewilligtePositionen.reduce((sum, p) => sum + p.gesamt, 0);
     const gesamtAUB = aubPositionen.reduce((sum, p) => sum + p.gesamt, 0);
     const zwischensumme = gesamtBewilligt + gesamtAUB;
     const zinv = zwischensumme * 0.0338;
     const gesamtbetrag = zwischensumme + zinv;
     const rechnungsbetragBA = Math.max(0, gesamtbetrag - pflegekassenBetrag);
-    
+
     const baZahltNurZINV = gesamtbetrag < pflegekassenBetrag;
     const finalRechnungsbetragBA = baZahltNurZINV ? zinv : rechnungsbetragBA;
-    
+
+    // Sortierung: AUB vor LK, dann nach Nummer
+    positionen.sort((a, b) => {
+      // Erst nach Typ: AUB vor LK
+      if (a.lkCode.startsWith('AUB') && !b.lkCode.startsWith('AUB')) return -1;
+      if (!a.lkCode.startsWith('AUB') && b.lkCode.startsWith('AUB')) return 1;
+
+      // Dann nach Nummer
+      const numA = parseInt(a.lkCode.replace(/[^\d]/g, '')) || 0;
+      const numB = parseInt(b.lkCode.replace(/[^\d]/g, '')) || 0;
+      return numA - numB;
+    });
+
+    // LK14 hinzufügen wenn in Medifox vorhanden aber zu LK15 umgewandelt
+    const lk14InMedifox = rechnungPositionen.find(pos => pos.lkCode === 'LK14');
+    if (lk14InMedifox && !positionen.find(p => p.lkCode === 'LK14')) {
+      positionen.push({
+        lkCode: 'LK14',
+        bezeichnung: lk14InMedifox.bezeichnung || 'Zubereitung warme Mahlzeit',
+        menge: lk14InMedifox.menge,
+        preis: lk14InMedifox.preis,
+        gesamt: 0,
+        bewilligt: false,
+        umgewandeltZu: 'LK15'
+      });
+    }
+
     return {
       allePositionen: positionen,
       aubPositionen,
