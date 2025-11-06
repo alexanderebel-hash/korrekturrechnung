@@ -13,10 +13,11 @@ interface BewilligungRow {
 
 interface KlientData {
   name: string;
+  vorname?: string;  // NEU: Vorname getrennt vom Nachnamen
   zeitraumVon: string;
   zeitraumBis: string;
   geburtsdatum: string;
-  pflegegrad: number | '';
+  pflegegrad: number | '' | string;  // ERWEITERT: kann auch string sein (aus OCR)
   debitor: string;
   belegNr: string;
   genehmigungsDatum: string;
@@ -203,9 +204,19 @@ export default function Home() {
   });
   
   const dienst = PFLEGEDIENSTE[pflegedienstKey];
-  const klientAdresse = WOHNHEIME[wohnheimKey];
+  const [klientAdresse, setKlientAdresse] = useState(WOHNHEIME[wohnheimKey]);
   const [abrechnungszeitraumVon, setAbrechnungszeitraumVon] = useState('');
   const [abrechnungszeitraumBis, setAbrechnungszeitraumBis] = useState('');
+
+  // Rechnungsempfänger (dynamisch aus OCR)
+  const [rechnungsempfaenger, setRechnungsempfaenger] = useState({
+    behoerde: 'Bezirksamt Mitte von Berlin',
+    standort: 'Standort Wedding, Muellerstrasse 146-147',
+    plzOrt: '13344 Berlin'
+  });
+
+  // IK-Nummer (dynamisch aus OCR)
+  const [ikNummer, setIkNummer] = useState('461104151');
   const [selectedMonth, setSelectedMonth] = useState('');
   
   const [bewilligung, setBewilligung] = useState<BewilligungRow[]>([]);
@@ -306,6 +317,47 @@ export default function Home() {
   };
 
   const handleOCRPositionsExtracted = (positionen: any[], metadata?: any) => {
+    // NEU: Rechnungsempfänger aus OCR speichern
+    if (metadata?.rechnungsempfaenger) {
+      setRechnungsempfaenger({
+        behoerde: metadata.rechnungsempfaenger.behoerde || 'Bezirksamt Mitte von Berlin',
+        standort: metadata.rechnungsempfaenger.standort || '',
+        plzOrt: metadata.rechnungsempfaenger.plzOrt || ''
+      });
+    }
+
+    // NEU: IK-Nummer aus OCR speichern
+    if (metadata?.rechnungsdaten?.ikNummer) {
+      setIkNummer(metadata.rechnungsdaten.ikNummer);
+    }
+
+    // NEU: Rechnungsnummer aus OCR (wird später mit -K suffixed)
+    if (metadata?.rechnungsdaten?.rechnungsNr) {
+      setRechnungsnummer(metadata.rechnungsdaten.rechnungsNr);
+    }
+
+    // NEU: Leistungsempfänger mit vollständiger Adresse
+    if (metadata?.leistungsempfaenger) {
+      setKlientData(prev => ({
+        ...prev,
+        name: metadata.leistungsempfaenger.nachname || prev.name,
+        vorname: metadata.leistungsempfaenger.vorname || ''
+      }));
+
+      // Vollständige Adresse (Straße, Hausnummer, PLZ, Stadt)
+      if (metadata.leistungsempfaenger.adresse) {
+        setKlientAdresse(metadata.leistungsempfaenger.adresse);
+      }
+
+      // Pflegegrad
+      if (metadata.leistungsempfaenger.pflegegrad) {
+        setKlientData(prev => ({
+          ...prev,
+          pflegegrad: metadata.leistungsempfaenger.pflegegrad
+        }));
+      }
+    }
+
     // ZINV rausfiltern - das wird separat berechnet
     const positionenOhneZINV = positionen.filter(
       pos => !pos.lkCode.toUpperCase().includes('ZINV')
@@ -2792,7 +2844,8 @@ export default function Home() {
                 rechnung={korrektur}
                 klient={{
                   name: klientData.name,
-                  adresse: klientAdresse,
+                  vorname: klientData.vorname,  // NEU: Vorname separat
+                  adresse: klientAdresse,  // NEU: Komplette Adresse aus OCR
                   pflegegrad: klientData.pflegegrad
                 }}
                 dienst={{
@@ -2807,16 +2860,16 @@ export default function Home() {
                   bic: dienst.bic,
                   bank: dienst.bank
                 }}
-                rechnungsNummer={rechnungsnummer || "XXXXXX"}
-                debitorNummer={klientData.debitor}
+                rechnungsNummer={`${rechnungsnummer || "XXXXXX"}-K`}  // GEÄNDERT: -K Suffix
+                ikNummer={ikNummer}  // NEU: IK aus OCR
                 zeitraumVon={zeitraumVonDisplay}
                 zeitraumBis={zeitraumBisDisplay}
                 rechnungsdatum={new Date().toLocaleDateString('de-DE')}
                 pflegekassenBetrag={pflegekassenBetrag}
                 logoUrl={logoUrl}
-                rechnungsEmpfaenger="Bezirksamt Mitte von Berlin"
-                empfaengerStrasse="Standort Wedding, Muellerstrasse 146-147"
-                empfaengerPlz="13344 Berlin"
+                rechnungsEmpfaenger={rechnungsempfaenger.behoerde}  // GEÄNDERT: dynamisch
+                empfaengerStrasse={rechnungsempfaenger.standort}  // GEÄNDERT: dynamisch
+                empfaengerPlz={rechnungsempfaenger.plzOrt}  // GEÄNDERT: dynamisch
               />
             </div>
           </div>

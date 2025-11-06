@@ -3,10 +3,15 @@ import React from 'react';
 
 interface InvoiceLayoutNewProps {
   rechnung: any;
-  klient: any;
+  klient: {
+    name: string;
+    vorname?: string;  // NEU
+    adresse: string;
+    pflegegrad: string | number | '';
+  };
   dienst: any;
   rechnungsNummer: string;
-  debitorNummer: string;
+  ikNummer: string;  // NEU: IK-Nummer aus OCR
   zeitraumVon: string;
   zeitraumBis: string;
   rechnungsdatum: string;
@@ -22,7 +27,7 @@ export default function InvoiceLayoutNew({
   klient,
   dienst,
   rechnungsNummer,
-  debitorNummer,
+  ikNummer,  // NEU
   zeitraumVon,
   zeitraumBis,
   rechnungsdatum,
@@ -236,11 +241,10 @@ export default function InvoiceLayoutNew({
         <div className="flex justify-between">
           <div>
             <p><strong>Rechnung Nr.:</strong> {rechnungsNummer}</p>
-            <p><strong>Debitor:</strong> {debitorNummer}</p>
             <p><strong>Abrechnungszeitraum:</strong> {zeitraumVon} bis {zeitraumBis}</p>
           </div>
           <div className="text-right">
-            <p><strong>IK:</strong> {dienst.ik}</p>
+            <p><strong>IK:</strong> {ikNummer}</p>
           </div>
         </div>
       </div>
@@ -256,7 +260,9 @@ export default function InvoiceLayoutNew({
         <div className="flex justify-between">
           <div>
             <p style={{ marginBottom: '4px' }}><strong>Leistungsempfänger:</strong></p>
-            <p style={{ fontWeight: 'bold' }}>{klient.name}</p>
+            <p style={{ fontWeight: 'bold' }}>
+              {klient.name}{klient.vorname ? `, ${klient.vorname}` : ''}
+            </p>
             <p>{klient.adresse}</p>
           </div>
           <div className="text-right">

@@ -80,7 +80,14 @@ export default function MedifoxOCRUploadExtended({
       }
 
       const positionen = result.data.positionen;
-      const metadata = result.data.metadata;
+
+      // Gesamte OCR-Daten zusammenfassen (neue Struktur + legacy metadata)
+      const allMetadata = {
+        ...result.data.metadata,  // Legacy metadata (falls vorhanden)
+        rechnungsempfaenger: result.data.rechnungsempfaenger,
+        leistungsempfaenger: result.data.leistungsempfaenger,
+        rechnungsdaten: result.data.rechnungsdaten
+      };
 
       // Zähle LKs und AUBs
       const lks = positionen.filter((p: MedifoxPosition) => !p.isAUB);
@@ -88,7 +95,7 @@ export default function MedifoxOCRUploadExtended({
 
       setLkCount(lks.length);
       setAubCount(aubs.length);
-      setExtractedMetadata(metadata);
+      setExtractedMetadata(allMetadata);
       setUploadStatus("success");
       setStatusMessage(`${lks.length} LK-Positionen und ${aubs.length} AUB-Positionen erfolgreich ausgelesen`);
 
@@ -97,7 +104,7 @@ export default function MedifoxOCRUploadExtended({
         onFileSelected(file);
       }
 
-      onPositionsExtracted(positionen, metadata);
+      onPositionsExtracted(positionen, allMetadata);
 
     } catch (error: any) {
       console.error("Upload Error:", error);

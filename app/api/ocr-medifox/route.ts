@@ -16,6 +16,23 @@ interface MedifoxPosition {
 
 interface OCRResult {
   positionen: MedifoxPosition[];
+  rechnungsempfaenger?: {
+    behoerde?: string;
+    standort?: string;
+    plzOrt?: string;
+  };
+  leistungsempfaenger?: {
+    nachname?: string;
+    vorname?: string;
+    adresse?: string;
+    pflegegrad?: string;
+  };
+  rechnungsdaten?: {
+    rechnungsNr?: string;
+    ikNummer?: string;
+    abrechnungszeitraum?: string;
+  };
+  // Legacy metadata (backwards compatibility)
   metadata?: {
     rechnungsnummer?: string;
     datum?: string;
@@ -76,62 +93,74 @@ export async function POST(request: NextRequest) {
             },
             {
               type: "text",
-              text: `Analysiere diese Medifox-Rechnung und extrahiere ALLE Leistungskomplex-Positionen und Ausbildungsumlagen.
+              text: `Extrahiere aus dieser Pflegeabrechnung ALLE folgenden Informationen:
 
-WICHTIG: 
-- Extrahiere SOWOHL LK-Positionen (z.B. LK02, LK03b, LK11b, LK12, LK15, LK17a, LK20.2, etc.) 
-- ALS AUCH AUB-Positionen (Ausbildungsumlage zu LK02, etc.)
-- Achte auf Dezimalzahlen bei Mengen (z.B. 4,5 oder 4.5)
-- Bei LK-Codes mit Punkt (z.B. LK20.2) den Punkt beibehalten
-- Umlaute korrekt übernehmen (ä, ö, ü)
+1. RECHNUNGSEMPFÄNGER (steht ganz oben, Adressat der Rechnung):
+   - Behördenname (z.B. "Bezirksamt Mitte von Berlin")
+   - Standort/Abteilung (z.B. "Standort Wedding, Muellerstrasse 146-147")
+   - PLZ und Ort (z.B. "13344 Berlin")
 
-Gib mir ein JSON-Objekt zurück mit folgender Struktur:
+2. LEISTUNGSEMPFÄNGER (Klient/Patient):
+   - Nachname
+   - Vorname
+   - Vollständige Adresse als EIN String (z.B. "Hartriegelstr. 132, 12439 Berlin")
+   - Pflegegrad (nur die Zahl)
 
+3. RECHNUNGSDATEN:
+   - Rechnungsnummer (steht nach "Rechnung Nr.:")
+   - IK-Nummer (steht nach "IK:")
+   - Abrechnungszeitraum (Format: "2025-09-01 bis 2025-09-30")
+
+4. ALLE LEISTUNGSPOSITIONEN:
+   - LK-Code (z.B. LK04, LK11a, LK20.2)
+   - Bezeichnung
+   - Anzahl/Menge
+   - Einzelpreis
+   - Gesamtpreis
+
+   WICHTIG:
+   - Erfasse ALLE Positionen, auch ZINV
+   - Erfasse SOWOHL LK-Positionen ALS AUCH AUB-Positionen
+   - Bei LK-Codes mit Punkt (z.B. LK20.2) den Punkt beibehalten
+   - Achte auf Dezimalzahlen bei Mengen (z.B. 4,5 oder 4.5)
+
+Antworte NUR mit diesem JSON (keine Markdown-Blöcke, keine Erklärungen, nur pures JSON):
 {
+  "rechnungsempfaenger": {
+    "behoerde": "Bezirksamt Mitte von Berlin",
+    "standort": "Standort Wedding, Muellerstrasse 146-147",
+    "plzOrt": "13344 Berlin"
+  },
+  "leistungsempfaenger": {
+    "nachname": "Mustermann",
+    "vorname": "Max",
+    "adresse": "Hartriegelstr. 132, 12439 Berlin",
+    "pflegegrad": "3"
+  },
+  "rechnungsdaten": {
+    "rechnungsNr": "XXXXXX",
+    "ikNummer": "461104151",
+    "abrechnungszeitraum": "2025-09-01 bis 2025-09-30"
+  },
   "positionen": [
     {
-      "lkCode": "LK02",
-      "bezeichnung": "Kleine Körperpflege",
-      "menge": 9,
-      "einzelpreis": 17.01,
-      "gesamtpreis": 153.09,
+      "lkCode": "LK04",
+      "bezeichnung": "Große Körperpflege",
+      "menge": 8,
+      "einzelpreis": 34.01,
+      "gesamtpreis": 272.08,
       "isAUB": false
     },
     {
-      "lkCode": "AUB_LK02",
-      "bezeichnung": "Ausbildungsumlage zu LK02",
-      "menge": 9,
-      "einzelpreis": 0.39,
-      "gesamtpreis": 3.51,
+      "lkCode": "AUB_LK04",
+      "bezeichnung": "Ausbildungsumlage zu LK04",
+      "menge": 8,
+      "einzelpreis": 0.78,
+      "gesamtpreis": 6.24,
       "isAUB": true
-    },
-    {
-      "lkCode": "LK11b",
-      "bezeichnung": "Große Reinigung der Wohnung",
-      "menge": 4.5,
-      "einzelpreis": 22.29,
-      "gesamtpreis": 100.35,
-      "isAUB": false
     }
-    // ... weitere Positionen
-  ],
-  "metadata": {
-    "rechnungsnummer": "9876",
-    "datum": "03.11.2025",
-    "klient": "Bollweber, Roland Andreas",
-    "zeitraum": "01.09.2025 - 30.09.2025",
-    "pflegegrad": 2,
-    "debitor": "62298"
-  }
-}
-
-WICHTIG: 
-- Für AUB-Positionen: lkCode = "AUB_LK02" (mit Unterstrich), isAUB = true
-- Für LK-Positionen: lkCode = "LK02" (Original-Code), isAUB = false
-- Menge als Zahl (9 oder 4.5, nicht als String)
-- Preise mit Punkt als Dezimaltrenner (17.01, nicht 17,01)
-
-Antworte NUR mit dem JSON-Objekt, ohne zusätzlichen Text oder Markdown.`,
+  ]
+}`,
             },
           ],
         },
