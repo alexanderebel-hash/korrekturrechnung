@@ -1497,6 +1497,7 @@ export default function Home() {
               </h4>
               <MedifoxOCRUploadExtended
                 onPositionsExtracted={handleOCRPositionsExtracted}
+                onFileSelected={(file) => setMedifoxPdf(file)}
                 showMetadata={true}
               />
             </div>
@@ -1554,8 +1555,22 @@ export default function Home() {
                       </tr>
                     </thead>
                     <tbody>
-                      {rechnungPositionen.map((pos, idx) => (
-                        <tr key={idx} className={`border-b hover:bg-purple-50 ${pos.bewilligt ? 'bg-green-50' : 'bg-red-50'}`}>
+                      {[...rechnungPositionen]
+                        .sort((a, b) => {
+                          // AUBs zuerst
+                          const isAubA = a.lkCode.startsWith('AUB');
+                          const isAubB = b.lkCode.startsWith('AUB');
+
+                          if (isAubA && !isAubB) return -1;
+                          if (!isAubA && isAubB) return 1;
+
+                          // Innerhalb der Gruppe: numerisch sortieren
+                          return a.lkCode.localeCompare(b.lkCode, 'de', { numeric: true });
+                        })
+                        .map((pos, sortedIdx) => {
+                          const originalIdx = rechnungPositionen.findIndex(p => p === pos);
+                          return (
+                        <tr key={sortedIdx} className={`border-b hover:bg-purple-50 ${pos.lkCode.startsWith('AUB') ? 'bg-blue-50' : pos.bewilligt ? 'bg-green-50' : 'bg-red-50'}`}>
                           <td className="px-2 py-2">
                             <input
                               type="text"
@@ -1576,7 +1591,7 @@ export default function Home() {
                             <input
                               type="number"
                               value={pos.menge}
-                              onChange={(e) => updateRechnungsPosition(idx, 'menge', parseFloat(e.target.value) || 0)}
+                              onChange={(e) => updateRechnungsPosition(originalIdx, 'menge', parseFloat(e.target.value) || 0)}
                               className="w-full px-2 py-1 border rounded text-right text-sm font-bold"
                             />
                           </td>
@@ -1601,14 +1616,15 @@ export default function Home() {
                           </td>
                           <td className="px-2 py-2 text-center">
                             <button
-                              onClick={() => removeRechnungsPosition(idx)}
+                              onClick={() => removeRechnungsPosition(originalIdx)}
                               className="text-red-500 hover:text-red-700"
                             >
                               X
                             </button>
                           </td>
                         </tr>
-                      ))}
+                          );
+                        })}
                     </tbody>
                   </table>
                 </div>

@@ -23,12 +23,14 @@ interface MedifoxMetadata {
 
 interface MedifoxOCRUploadExtendedProps {
   onPositionsExtracted: (positionen: MedifoxPosition[], metadata?: MedifoxMetadata) => void;
+  onFileSelected?: (file: File) => void; // NEU: PDF-Datei zurückgeben
   showMetadata?: boolean; // Optional: Metadaten-Anzeige aktivieren
 }
 
-export default function MedifoxOCRUploadExtended({ 
-  onPositionsExtracted, 
-  showMetadata = true 
+export default function MedifoxOCRUploadExtended({
+  onPositionsExtracted,
+  onFileSelected,
+  showMetadata = true
 }: MedifoxOCRUploadExtendedProps) {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -89,6 +91,11 @@ export default function MedifoxOCRUploadExtended({
       setExtractedMetadata(metadata);
       setUploadStatus("success");
       setStatusMessage(`${lks.length} LK-Positionen und ${aubs.length} AUB-Positionen erfolgreich ausgelesen`);
+
+      // NEU: PDF-Datei zurückgeben
+      if (onFileSelected) {
+        onFileSelected(file);
+      }
 
       onPositionsExtracted(positionen, metadata);
 
