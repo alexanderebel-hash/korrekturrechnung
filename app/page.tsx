@@ -691,10 +691,15 @@ export default function Home() {
       if (pos.menge > 0 && !pos.istAUB) {
         const rawCode = pos.lkCode?.trim() || '';
         const upperCode = rawCode.toUpperCase();
+
+        // Normalisierung für LK-Code-Variationen (z.B. LK20.2 → LK20_HH)
+        const normalizedForLookup = normalizeLKCode(rawCode);
         const normalizedCode = upperCode.replace(/[^A-Z0-9]/g, '');
+
         const lkData =
           LK_PREISE[rawCode] ||
           LK_PREISE[upperCode] ||
+          LK_PREISE[normalizedForLookup] ||  // NEU: Verwende normalisierte Version
           LK_PREISE[normalizedCode];
 
         if (lkData && lkData.aubPreis > 0) {
@@ -714,6 +719,14 @@ export default function Home() {
           });
         }
       }
+    });
+
+    console.log('🔍 berechneAUBs Debug:', {
+      input: lkPositionen.map(p => `${p.lkCode} (bewilligt: ${p.bewilligt})`),
+      output: aubPositionen.map(a => `${a.zugehoerigLK} → AUB (${a.gesamt.toFixed(2)} EUR)`),
+      fehlend: lkPositionen
+        .filter(lk => !aubPositionen.find(aub => aub.zugehoerigLK === lk.lkCode))
+        .map(lk => lk.lkCode)
     });
 
     return aubPositionen;
