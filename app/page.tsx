@@ -927,6 +927,18 @@ export default function Home() {
     const zinvPrivat = baZahltNurZINV ? 0 : (zwischensummePrivat * 0.0338);
     const gesamtbetragPrivat = zwischensummePrivat + zinvPrivat;
     
+    // DEBUG: Was wird zurückgegeben?
+    console.log('🔍 berechneKorrekturrechnung RETURN:', {
+      bewilligtePositionen: bewilligtePositionen.length,
+      bewilligtePositionenCodes: bewilligtePositionen.map(p => p.lkCode),
+      nichtBewilligtePositionen: nichtBewilligtePositionen.length,
+      nichtBewilligtePositionenCodes: nichtBewilligtePositionen.map(p => p.lkCode),
+      aubBewilligt: aubBewilligt?.length || 0,
+      aubBewilligtCodes: aubBewilligt?.map(a => a.lkCode) || [],
+      aubNichtBewilligt: aubNichtBewilligt?.length || 0,
+      aubNichtBewilligtCodes: aubNichtBewilligt?.map(a => a.lkCode) || []
+    });
+
     return {
       bewilligtePositionen,
       nichtBewilligtePositionen,
@@ -1630,6 +1642,106 @@ export default function Home() {
                 </div>
               )}
             </div>
+
+            {/* Theoretische Gesamtrechnung */}
+            {rechnungsPositionen.length > 0 && (
+              <div className="mt-8 bg-white rounded-xl shadow-lg p-8 border-2 border-purple-200">
+                <h3 className="text-2xl font-bold text-purple-700 mb-6 flex items-center gap-2">
+                  <span>📊</span> Theoretische Gesamtrechnung (alle Positionen)
+                </h3>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                  <p className="text-sm text-blue-800">
+                    ℹ️ Zum Vergleich mit der Original-Medifox-Rechnung. Zeigt die Summen <strong>vor</strong> der Bewilligungsprüfung.
+                  </p>
+                </div>
+
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-8 space-y-4 border border-gray-200">
+                  {(() => {
+                    // LKs (ohne ZINV)
+                    const lks = rechnungPositionen.filter(
+                      p => !p.lkCode.startsWith('AUB') && p.lkCode !== 'ZINV'
+                    );
+
+                    // AUBs
+                    const aubs = rechnungPositionen.filter(p => p.lkCode.startsWith('AUB'));
+
+                    // Berechnungen
+                    const summeLK = lks.reduce((sum, p) => sum + (p.menge * p.preis), 0);
+                    const summeAUB = aubs.reduce((sum, p) => sum + (p.menge * p.preis), 0);
+                    const zwischensumme = summeLK + summeAUB;
+                    const zinvBetrag = zwischensumme * 0.0338;
+                    const gesamtbetrag = zwischensumme + zinvBetrag;
+
+                    // Pflegekasse
+                    const anteilWeitereKostentraeger = pflegekassenBetrag || 0;
+
+                    // Endbetrag
+                    const rechnungsbetrag = gesamtbetrag - anteilWeitereKostentraeger;
+
+                    return (
+                      <>
+                        {/* Details */}
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Anzahl LK-Positionen:</span>
+                            <span className="font-semibold">{lks.length}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Summe LK:</span>
+                            <span className="font-semibold">{summeLK.toFixed(2)} EUR</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Summe AUB:</span>
+                            <span className="font-semibold">{summeAUB.toFixed(2)} EUR</span>
+                          </div>
+                        </div>
+
+                        <div className="border-t-2 border-gray-300 pt-3"></div>
+
+                        {/* Zwischensumme + ZINV */}
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-gray-700">Zwischensumme:</span>
+                            <span className="font-bold text-lg">{zwischensumme.toFixed(2)} EUR</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-700">ZINV (3,38%):</span>
+                            <span className="font-bold text-lg">{zinvBetrag.toFixed(2)} EUR</span>
+                          </div>
+                        </div>
+
+                        <div className="border-t-4 border-purple-600 pt-4"></div>
+
+                        {/* GESAMTBETRAG */}
+                        <div className="bg-purple-100 rounded-lg p-4">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xl font-bold text-purple-900">Gesamtbetrag:</span>
+                            <span className="text-2xl font-bold text-purple-700">{gesamtbetrag.toFixed(2)} EUR</span>
+                          </div>
+                        </div>
+
+                        {/* ANTEIL WEITERE KOSTENTRÄGER */}
+                        <div className="flex justify-between items-center text-lg">
+                          <span className="text-gray-700">./. Anteil weitere Kostenträger:</span>
+                          <span className="font-bold text-red-600">{anteilWeitereKostentraeger.toFixed(2)} EUR</span>
+                        </div>
+
+                        <div className="border-t-4 border-gray-800 pt-4"></div>
+
+                        {/* RECHNUNGSBETRAG */}
+                        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-6 shadow-lg">
+                          <div className="flex justify-between items-center">
+                            <span className="text-2xl font-bold text-white">Rechnungsbetrag:</span>
+                            <span className="text-3xl font-bold text-white">{rechnungsbetrag.toFixed(2)} EUR</span>
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

@@ -53,6 +53,11 @@ export default function InvoiceLayoutNew({
     return numA - numB;
   });
 
+  console.log('🔍 InvoiceLayoutNew allePositionen:', {
+    total: allePositionen.length,
+    codes: allePositionen.map(p => p.lkCode)
+  });
+
   // Zahlungsfrist berechnen (30 Tage)
   const zahlungsfrist = new Date(rechnungsdatum);
   zahlungsfrist.setDate(zahlungsfrist.getDate() + 30);
