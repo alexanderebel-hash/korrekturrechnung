@@ -95,15 +95,15 @@ export async function POST(request: NextRequest) {
               type: "text",
               text: `Analysiere diese Pflegeabrechnung und extrahiere die Daten.
 
-WICHTIG: Antworte STRIKT als JSON ohne Markdown-Blöcke (```), ohne Erklärungen, nur pures JSON!
+WICHTIG: Antworte STRIKT als JSON ohne Markdown-Blöcke, ohne Erklärungen, nur pures JSON!
 
 Extrahiere:
 - Rechnungsempfänger (Behörde ganz oben)
-- Leistungsempfänger (Klient/Patient)
-- Rechnungsdaten (Rechnungs-Nr, IK, Zeitraum)
-- ALLE Leistungspositionen (LK-Codes + AUB)
+- Leistungsempfänger (Name, Vorname, Adresse, Pflegegrad)
+- Rechnungsdaten (Rechnungsnr, IK-Nummer, Zeitraum)
+- Alle Leistungspositionen (LK-Code, Bezeichnung, Menge, Preis)
 
-JSON-Format:
+Antworte nur mit diesem JSON (keine zusätzlichen Zeichen):
 {
   "rechnungsempfaenger": {
     "behoerde": "Bezirksamt Mitte von Berlin",
