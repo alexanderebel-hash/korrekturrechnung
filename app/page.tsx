@@ -351,10 +351,17 @@ export default function Home() {
 
       // Pflegegrad
       if (metadata.leistungsempfaenger.pflegegrad) {
+        const pflegegradNum = parseInt(metadata.leistungsempfaenger.pflegegrad);
         setKlientData(prev => ({
           ...prev,
           pflegegrad: metadata.leistungsempfaenger.pflegegrad
         }));
+
+        // Pflegekassen-Betrag automatisch setzen basierend auf Pflegegrad
+        if (!isNaN(pflegegradNum) && PFLEGEGRAD_SACHLEISTUNG[pflegegradNum]) {
+          setPflegekassenBetrag(PFLEGEGRAD_SACHLEISTUNG[pflegegradNum]);
+          console.log('🔍 OCR: Pflegekassen-Betrag gesetzt für Pflegegrad', pflegegradNum, ':', PFLEGEGRAD_SACHLEISTUNG[pflegegradNum]);
+        }
       }
     }
 
