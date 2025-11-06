@@ -669,7 +669,14 @@ export default function Home() {
 
     lkPositionen.forEach(pos => {
       if (pos.menge > 0 && !pos.istAUB) {
-        const lkData = LK_PREISE[pos.lkCode];
+        const rawCode = pos.lkCode?.trim() || '';
+        const upperCode = rawCode.toUpperCase();
+        const normalizedCode = upperCode.replace(/[^A-Z0-9]/g, '');
+        const lkData =
+          LK_PREISE[rawCode] ||
+          LK_PREISE[upperCode] ||
+          LK_PREISE[normalizedCode];
+
         if (lkData && lkData.aubPreis > 0) {
           // AUB gesamt = 0 wenn LK nicht bewilligt
           const aubGesamt = pos.bewilligt ? (pos.menge * lkData.aubPreis) : 0;
@@ -927,6 +934,11 @@ export default function Home() {
     const zinvPrivat = baZahltNurZINV ? 0 : (zwischensummePrivat * 0.0338);
     const gesamtbetragPrivat = zwischensummePrivat + zinvPrivat;
     
+    console.log('🔍 DEBUG vor Return:', {
+      nichtBewilligtePositionen,
+      versuchAubNichtBewilligt: berechneAUBs(nichtBewilligtePositionen)
+    });
+
     // DEBUG: Was wird zurückgegeben?
     console.log('🔍 berechneKorrekturrechnung RETURN:', {
       bewilligtePositionen: bewilligtePositionen.length,
@@ -1644,7 +1656,7 @@ export default function Home() {
             </div>
 
             {/* Theoretische Gesamtrechnung */}
-            {rechnungsPositionen.length > 0 && (
+            {rechnungPositionen.length > 0 && (
               <div className="mt-8 bg-white rounded-xl shadow-lg p-8 border-2 border-purple-200">
                 <h3 className="text-2xl font-bold text-purple-700 mb-6 flex items-center gap-2">
                   <span>📊</span> Theoretische Gesamtrechnung (alle Positionen)

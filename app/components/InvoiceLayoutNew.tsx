@@ -34,12 +34,23 @@ export default function InvoiceLayoutNew({
 }: InvoiceLayoutNewProps) {
 
   // Kombiniere alle Positionen für die Anzeige
-  const allePositionen = [
+  const allePositionenRoh = [
     ...(rechnung.bewilligtePositionen || []),
     ...(rechnung.aubBewilligt || []),
     ...(rechnung.nichtBewilligtePositionen || []),
     ...(rechnung.aubNichtBewilligt || [])
-  ].sort((a, b) => {
+  ];
+
+  console.log('🔍 InvoiceLayoutNew VOR SORT:', {
+    total: allePositionenRoh.length,
+    codes: allePositionenRoh.map(p => p.lkCode),
+    bewilligte: rechnung.bewilligtePositionen?.length || 0,
+    aubBewilligt: rechnung.aubBewilligt?.length || 0,
+    nichtBewilligte: rechnung.nichtBewilligtePositionen?.length || 0,
+    aubNichtBewilligt: rechnung.aubNichtBewilligt?.length || 0
+  });
+
+  const allePositionen = [...allePositionenRoh].sort((a, b) => {
     const aIsAUB = a.lkCode.startsWith('AUB');
     const bIsAUB = b.lkCode.startsWith('AUB');
 
@@ -53,7 +64,7 @@ export default function InvoiceLayoutNew({
     return numA - numB;
   });
 
-  console.log('🔍 InvoiceLayoutNew allePositionen:', {
+  console.log('🔍 InvoiceLayoutNew NACH SORT:', {
     total: allePositionen.length,
     codes: allePositionen.map(p => p.lkCode)
   });
