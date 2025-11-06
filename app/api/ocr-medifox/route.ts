@@ -45,35 +45,47 @@ interface OCRResult {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔍 OCR API: Request received');
+
     // API Key aus Environment Variables holen
     const apiKey = process.env.ANTHROPIC_API_KEY;
-    
+
     if (!apiKey) {
+      console.error('❌ OCR API: No API key found');
       return NextResponse.json(
         { error: "ANTHROPIC_API_KEY nicht gefunden in Vercel Environment Variables" },
         { status: 500 }
       );
     }
+    console.log('🔍 OCR API: API key found');
 
     // PDF File aus Request holen
     const formData = await request.formData();
     const file = formData.get("file") as File;
 
     if (!file) {
+      console.error('❌ OCR API: No file provided');
       return NextResponse.json(
         { error: "Keine Datei hochgeladen" },
         { status: 400 }
       );
     }
 
+    console.log('🔍 OCR API: File received:', file.name, 'Size:', file.size);
+
     // PDF zu Base64 konvertieren
     const arrayBuffer = await file.arrayBuffer();
+    console.log('🔍 OCR API: PDF bytes read:', arrayBuffer.byteLength);
+
     const base64 = Buffer.from(arrayBuffer).toString("base64");
+    console.log('🔍 OCR API: Base64 length:', base64.length);
 
     // Anthropic Client initialisieren
     const anthropic = new Anthropic({
       apiKey: apiKey,
     });
+
+    console.log('🔍 OCR API: Calling Claude API...');
 
     // Claude Vision API aufrufen mit strukturiertem Prompt
     const message = await anthropic.messages.create({
@@ -146,10 +158,14 @@ Antworte nur mit diesem JSON (keine zusätzlichen Zeichen):
       ],
     });
 
+    console.log('🔍 OCR API: Claude responded');
+
     // Response extrahieren mit besserem Error-Handling
     const content = message.content[0];
+    console.log('🔍 OCR API: Response type:', content.type);
+
     if (content.type !== "text") {
-      console.error("❌ Claude returned non-text response:", content);
+      console.error("❌ OCR API: Non-text response:", content);
       return NextResponse.json(
         { error: "OCR returned invalid response type" },
         { status: 500 }
@@ -157,6 +173,7 @@ Antworte nur mit diesem JSON (keine zusätzlichen Zeichen):
     }
 
     const responseText = content.text;
+    console.log('🔍 OCR API: Raw response (first 300 chars):', responseText.substring(0, 300));
 
     // JSON parsen
     let ocrResult: OCRResult;
@@ -167,12 +184,15 @@ Antworte nur mit diesem JSON (keine zusätzlichen Zeichen):
         .replace(/```\n?/g, "")
         .trim();
 
-      console.log("🔍 Claude Response Preview:", cleanedJson.substring(0, 200));
+      console.log("🔍 OCR API: Cleaned response (first 300 chars):", cleanedJson.substring(0, 300));
 
       ocrResult = JSON.parse(cleanedJson);
+      console.log('🔍 OCR API: JSON parsed successfully');
+      console.log('🔍 OCR API: Positionen count:', ocrResult.positionen?.length || 0);
     } catch (parseError) {
-      console.error("❌ JSON Parse Error:", parseError);
-      console.error("❌ Raw Response (first 500 chars):", responseText.substring(0, 500));
+      console.error("❌ OCR API: JSON Parse Error:", parseError);
+      console.error("❌ OCR API: Raw Response (first 500 chars):", responseText.substring(0, 500));
+      console.error("❌ OCR API: Full response:", responseText);
       return NextResponse.json(
         {
           error: "Failed to parse OCR response as JSON",
@@ -184,11 +204,14 @@ Antworte nur mit diesem JSON (keine zusätzlichen Zeichen):
 
     // Validierung
     if (!ocrResult.positionen || !Array.isArray(ocrResult.positionen)) {
+      console.error('❌ OCR API: No positionen array found');
       return NextResponse.json(
         { error: "Keine Positionen gefunden in der Rechnung" },
         { status: 400 }
       );
     }
+
+    console.log('🔍 OCR API: Validation passed, returning data');
 
     // Erfolgreiche Antwort
     return NextResponse.json({
@@ -198,11 +221,12 @@ Antworte nur mit diesem JSON (keine zusätzlichen Zeichen):
     });
 
   } catch (error: any) {
-    console.error("OCR Error:", error);
+    console.error("❌ OCR API: Fatal error:", error);
+    console.error("❌ OCR API: Error stack:", error.stack);
     return NextResponse.json(
-      { 
+      {
         error: "Fehler beim Verarbeiten der PDF",
-        details: error.message 
+        details: error.message
       },
       { status: 500 }
     );
