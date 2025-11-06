@@ -175,28 +175,41 @@ Antworte nur mit diesem JSON (keine zusätzlichen Zeichen):
     const responseText = content.text;
     console.log('🔍 OCR API: Raw response (first 300 chars):', responseText.substring(0, 300));
 
-    // JSON parsen
-    let ocrResult: OCRResult;
-    try {
-      // Entferne mögliche Markdown-Codeblöcke
-      const cleanedJson = responseText
+    // ROBUSTER JSON-Parser mit mehreren Strategien
+    let cleanedText = responseText.trim();
+
+    // Strategie 1: Finde JSON-Block mit Regex (findet JSON auch wenn Text drumherum ist)
+    const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      cleanedText = jsonMatch[0];
+      console.log('🔍 OCR API: JSON via Regex gefunden');
+    } else {
+      // Strategie 2: Entferne Markdown-Blöcke
+      cleanedText = cleanedText
         .replace(/```json\n?/g, "")
         .replace(/```\n?/g, "")
         .trim();
+      console.log('🔍 OCR API: Markdown entfernt');
+    }
 
-      console.log("🔍 OCR API: Cleaned response (first 300 chars):", cleanedJson.substring(0, 300));
+    console.log("🔍 OCR API: Cleaned response (first 300 chars):", cleanedText.substring(0, 300));
 
-      ocrResult = JSON.parse(cleanedJson);
+    // JSON parsen
+    let ocrResult: OCRResult;
+    try {
+      ocrResult = JSON.parse(cleanedText);
       console.log('🔍 OCR API: JSON parsed successfully');
       console.log('🔍 OCR API: Positionen count:', ocrResult.positionen?.length || 0);
     } catch (parseError) {
       console.error("❌ OCR API: JSON Parse Error:", parseError);
-      console.error("❌ OCR API: Raw Response (first 500 chars):", responseText.substring(0, 500));
+      console.error("❌ OCR API: Cleaned text (first 300 chars):", cleanedText.substring(0, 300));
+      console.error("❌ OCR API: Original text (first 500 chars):", responseText.substring(0, 500));
       console.error("❌ OCR API: Full response:", responseText);
       return NextResponse.json(
         {
           error: "Failed to parse OCR response as JSON",
-          details: responseText.substring(0, 200)
+          hint: "Claude returned text instead of JSON",
+          preview: responseText.substring(0, 200)
         },
         { status: 500 }
       );
