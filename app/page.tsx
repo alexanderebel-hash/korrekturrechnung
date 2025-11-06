@@ -1710,6 +1710,130 @@ export default function Home() {
                 </div>
               </div>
 
+              {/* PDF-Viewer + Theoretische Gesamtrechnung */}
+              {medifoxPdf && rechnungPositionen.length > 0 && (
+                <div className="mt-8 mb-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                    {/* Linke Seite: PDF-Viewer */}
+                    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <span>📄</span> Original Medifox-Rechnung
+                      </h3>
+                      <div className="border border-gray-300 rounded-lg overflow-hidden" style={{ height: '600px' }}>
+                        <embed
+                          src={URL.createObjectURL(medifoxPdf)}
+                          type="application/pdf"
+                          width="100%"
+                          height="100%"
+                          className="rounded-lg"
+                        />
+                      </div>
+                      <p className="text-sm text-gray-500 mt-2 text-center">
+                        {medifoxPdf.name}
+                      </p>
+                    </div>
+
+                    {/* Rechte Seite: Theoretische Gesamtrechnung */}
+                    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+                      <h3 className="text-lg font-semibold text-purple-700 mb-4 flex items-center gap-2">
+                        <span>📊</span> Theoretische Gesamtrechnung (alle Positionen)
+                      </h3>
+
+                      <div className="space-y-4">
+                        {/* Info-Box */}
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <p className="text-sm text-blue-800">
+                            ℹ️ Diese Rechnung zeigt, was die Originalrechnung <strong>ohne Kürzungen</strong> enthalten würde.
+                            Zum Vergleich mit der Medifox-PDF links.
+                          </p>
+                        </div>
+
+                        {/* Berechnungen */}
+                        <div className="bg-gray-50 rounded-lg p-6 space-y-3">
+                          {(() => {
+                            // LKs und AUBs filtern
+                            const lks = rechnungPositionen.filter(p => !p.lkCode.startsWith('AUB'));
+                            const aubs = rechnungPositionen.filter(p => p.lkCode.startsWith('AUB'));
+
+                            // Summen berechnen
+                            const summeLK = lks.reduce((sum, p) => sum + (p.menge * p.preis), 0);
+                            const summeAUB = aubs.reduce((sum, p) => sum + (p.menge * p.preis), 0);
+                            const gesamtbetragOhneZINV = summeLK + summeAUB;
+                            const zinv = gesamtbetragOhneZINV * 0.0338;
+                            const gesamtbetrag = gesamtbetragOhneZINV + zinv;
+
+                            // Pflegekasse aus Schritt 1
+                            const pflegekassenBudget = pflegekassenBetrag || 0;
+
+                            // Rechnungsbetrag
+                            const rechnungsbetrag = gesamtbetrag - pflegekassenBudget;
+
+                            return (
+                              <>
+                                <div className="flex justify-between items-center pb-2">
+                                  <span className="text-gray-700">Anzahl LK-Positionen:</span>
+                                  <span className="font-semibold text-gray-900">{lks.length}</span>
+                                </div>
+
+                                <div className="flex justify-between items-center pb-2">
+                                  <span className="text-gray-700">Summe LK:</span>
+                                  <span className="font-semibold text-gray-900">{summeLK.toFixed(2)} EUR</span>
+                                </div>
+
+                                <div className="flex justify-between items-center pb-2">
+                                  <span className="text-gray-700">Summe AUB:</span>
+                                  <span className="font-semibold text-gray-900">{summeAUB.toFixed(2)} EUR</span>
+                                </div>
+
+                                <div className="border-t border-gray-300 pt-2"></div>
+
+                                <div className="flex justify-between items-center pb-2">
+                                  <span className="text-gray-700">Zwischensumme:</span>
+                                  <span className="font-semibold text-gray-900">{gesamtbetragOhneZINV.toFixed(2)} EUR</span>
+                                </div>
+
+                                <div className="flex justify-between items-center pb-2">
+                                  <span className="text-gray-700">ZINV (3,38%):</span>
+                                  <span className="font-semibold text-gray-900">{zinv.toFixed(2)} EUR</span>
+                                </div>
+
+                                <div className="border-t-2 border-purple-600 pt-3 mt-2"></div>
+
+                                <div className="flex justify-between items-center pb-2">
+                                  <span className="text-lg font-bold text-purple-700">Gesamtbetrag:</span>
+                                  <span className="text-lg font-bold text-purple-700">{gesamtbetrag.toFixed(2)} EUR</span>
+                                </div>
+
+                                <div className="flex justify-between items-center pb-2">
+                                  <span className="text-gray-700">./. Anteil weitere Kostenträger:</span>
+                                  <span className="font-semibold text-red-600">{pflegekassenBudget.toFixed(2)} EUR</span>
+                                </div>
+
+                                <div className="border-t-2 border-gray-800 pt-3 mt-2"></div>
+
+                                <div className="flex justify-between items-center bg-gradient-to-r from-purple-100 to-indigo-100 p-4 rounded-lg">
+                                  <span className="text-xl font-bold text-gray-900">Rechnungsbetrag:</span>
+                                  <span className="text-xl font-bold text-purple-700">{rechnungsbetrag.toFixed(2)} EUR</span>
+                                </div>
+                              </>
+                            );
+                          })()}
+                        </div>
+
+                        {/* Hinweis */}
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                          <p className="text-sm text-yellow-800">
+                            ⚠️ <strong>Hinweis:</strong> Dies ist die theoretische Rechnung basierend auf ALLEN erfassten Positionen.
+                            Die tatsächliche Korrekturrechnung berücksichtigt nur bewilligte Leistungen.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="bg-indigo-50 rounded-lg p-4 border-2 border-indigo-200 mb-6">
                 <h4 className="font-semibold text-indigo-800 mb-3">Rechnungsbetrag BA:</h4>
                 <div className="space-y-2 text-sm">
