@@ -93,38 +93,17 @@ export async function POST(request: NextRequest) {
             },
             {
               type: "text",
-              text: `Extrahiere aus dieser Pflegeabrechnung ALLE folgenden Informationen:
+              text: `Analysiere diese Pflegeabrechnung und extrahiere die Daten.
 
-1. RECHNUNGSEMPFÄNGER (steht ganz oben, Adressat der Rechnung):
-   - Behördenname (z.B. "Bezirksamt Mitte von Berlin")
-   - Standort/Abteilung (z.B. "Standort Wedding, Muellerstrasse 146-147")
-   - PLZ und Ort (z.B. "13344 Berlin")
+WICHTIG: Antworte STRIKT als JSON ohne Markdown-Blöcke (```), ohne Erklärungen, nur pures JSON!
 
-2. LEISTUNGSEMPFÄNGER (Klient/Patient):
-   - Nachname
-   - Vorname
-   - Vollständige Adresse als EIN String (z.B. "Hartriegelstr. 132, 12439 Berlin")
-   - Pflegegrad (nur die Zahl)
+Extrahiere:
+- Rechnungsempfänger (Behörde ganz oben)
+- Leistungsempfänger (Klient/Patient)
+- Rechnungsdaten (Rechnungs-Nr, IK, Zeitraum)
+- ALLE Leistungspositionen (LK-Codes + AUB)
 
-3. RECHNUNGSDATEN:
-   - Rechnungsnummer (steht nach "Rechnung Nr.:")
-   - IK-Nummer (steht nach "IK:")
-   - Abrechnungszeitraum (Format: "2025-09-01 bis 2025-09-30")
-
-4. ALLE LEISTUNGSPOSITIONEN:
-   - LK-Code (z.B. LK04, LK11a, LK20.2)
-   - Bezeichnung
-   - Anzahl/Menge
-   - Einzelpreis
-   - Gesamtpreis
-
-   WICHTIG:
-   - Erfasse ALLE Positionen, auch ZINV
-   - Erfasse SOWOHL LK-Positionen ALS AUCH AUB-Positionen
-   - Bei LK-Codes mit Punkt (z.B. LK20.2) den Punkt beibehalten
-   - Achte auf Dezimalzahlen bei Mengen (z.B. 4,5 oder 4.5)
-
-Antworte NUR mit diesem JSON (keine Markdown-Blöcke, keine Erklärungen, nur pures JSON):
+JSON-Format:
 {
   "rechnungsempfaenger": {
     "behoerde": "Bezirksamt Mitte von Berlin",
@@ -134,11 +113,11 @@ Antworte NUR mit diesem JSON (keine Markdown-Blöcke, keine Erklärungen, nur pu
   "leistungsempfaenger": {
     "nachname": "Mustermann",
     "vorname": "Max",
-    "adresse": "Hartriegelstr. 132, 12439 Berlin",
+    "adresse": "Musterstr. 1, 12345 Berlin",
     "pflegegrad": "3"
   },
   "rechnungsdaten": {
-    "rechnungsNr": "XXXXXX",
+    "rechnungsNr": "123456",
     "ikNummer": "461104151",
     "abrechnungszeitraum": "2025-09-01 bis 2025-09-30"
   },
@@ -167,10 +146,17 @@ Antworte NUR mit diesem JSON (keine Markdown-Blöcke, keine Erklärungen, nur pu
       ],
     });
 
-    // Response extrahieren
-    const responseText = message.content[0].type === "text" 
-      ? message.content[0].text 
-      : "";
+    // Response extrahieren mit besserem Error-Handling
+    const content = message.content[0];
+    if (content.type !== "text") {
+      console.error("❌ Claude returned non-text response:", content);
+      return NextResponse.json(
+        { error: "OCR returned invalid response type" },
+        { status: 500 }
+      );
+    }
+
+    const responseText = content.text;
 
     // JSON parsen
     let ocrResult: OCRResult;
@@ -180,15 +166,17 @@ Antworte NUR mit diesem JSON (keine Markdown-Blöcke, keine Erklärungen, nur pu
         .replace(/```json\n?/g, "")
         .replace(/```\n?/g, "")
         .trim();
-      
+
+      console.log("🔍 Claude Response Preview:", cleanedJson.substring(0, 200));
+
       ocrResult = JSON.parse(cleanedJson);
     } catch (parseError) {
-      console.error("JSON Parse Error:", parseError);
-      console.error("Raw Response:", responseText);
+      console.error("❌ JSON Parse Error:", parseError);
+      console.error("❌ Raw Response (first 500 chars):", responseText.substring(0, 500));
       return NextResponse.json(
-        { 
-          error: "Fehler beim Parsen der OCR-Antwort",
-          details: responseText 
+        {
+          error: "Failed to parse OCR response as JSON",
+          details: responseText.substring(0, 200)
         },
         { status: 500 }
       );
