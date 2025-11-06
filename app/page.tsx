@@ -290,9 +290,14 @@ export default function Home() {
   };
 
   const handleOCRPositionsExtracted = (positionen: any[], metadata?: any) => {
+    // ZINV rausfiltern - das wird separat berechnet
+    const positionenOhneZINV = positionen.filter(
+      pos => !pos.lkCode.toUpperCase().includes('ZINV')
+    );
+
     // LKs und AUBs filtern
-    const lkPositionen = positionen.filter(p => !p.isAUB);
-    const aubPositionen = positionen.filter(p => p.isAUB);
+    const lkPositionen = positionenOhneZINV.filter(p => !p.isAUB);
+    const aubPositionen = positionenOhneZINV.filter(p => p.isAUB);
 
     // Schritt 1: LKs verarbeiten und Bewilligungsstatus prüfen
     const verarbeiteteLKs: RechnungsPosition[] = lkPositionen.map(pos => {
@@ -661,17 +666,20 @@ export default function Home() {
 
   const berechneAUBs = (lkPositionen: RechnungsPosition[]): RechnungsPosition[] => {
     const aubPositionen: RechnungsPosition[] = [];
-    
+
     lkPositionen.forEach(pos => {
       if (pos.menge > 0 && !pos.istAUB) {
         const lkData = LK_PREISE[pos.lkCode];
         if (lkData && lkData.aubPreis > 0) {
+          // AUB gesamt = 0 wenn LK nicht bewilligt
+          const aubGesamt = pos.bewilligt ? (pos.menge * lkData.aubPreis) : 0;
+
           aubPositionen.push({
             lkCode: `AUB`,
             bezeichnung: `Ausbildungsumlage zu ${pos.lkCode}`,
             menge: pos.menge,
             preis: lkData.aubPreis,
-            gesamt: pos.menge * lkData.aubPreis,
+            gesamt: aubGesamt,
             bewilligt: pos.bewilligt,
             istAUB: true,
             zugehoerigLK: pos.lkCode
@@ -679,7 +687,7 @@ export default function Home() {
         }
       }
     });
-    
+
     return aubPositionen;
   };
 
@@ -858,7 +866,7 @@ export default function Home() {
       if (bewilligtPos) {
         const maxMenge = bewilligtPos.jeMonat || Math.floor(bewilligtPos.jeWoche * 4.33);
         const originalMenge = pos.menge;
-        
+
         if (pos.menge > maxMenge) {
           return {
             ...pos,
@@ -870,7 +878,8 @@ export default function Home() {
         }
         return { ...pos, bewilligt: true };
       }
-      return { ...pos, bewilligt: false };
+      // Nicht bewilligte Positionen mit gesamt: 0
+      return { ...pos, gesamt: 0, bewilligt: false };
     });
     
     const bewilligtePositionen = positionen.filter(p => p.bewilligt && p.menge > 0);

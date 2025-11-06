@@ -58,6 +58,21 @@ export default function InvoiceLayoutNew({
   zahlungsfrist.setDate(zahlungsfrist.getDate() + 30);
   const zahlungsfristFormatted = zahlungsfrist.toLocaleDateString('de-DE');
 
+  // Bereinigt Bezeichnungen wie "LK11a LK11a Kleine Reinigung" → "Kleine Reinigung"
+  const bereinigeBezeichnung = (bezeichnung: string, lkCode: string): string => {
+    if (!bezeichnung) return '';
+
+    // Entferne führende doppelte LK-Codes: "LK11a LK11a Text" → "Text"
+    const pattern1 = new RegExp(`^${lkCode}\\s+${lkCode}\\s+`, 'i');
+    let cleaned = bezeichnung.replace(pattern1, '');
+
+    // Entferne einzelnen führenden LK-Code: "LK11a Text" → "Text"
+    const pattern2 = new RegExp(`^${lkCode}\\s+`, 'i');
+    cleaned = cleaned.replace(pattern2, '');
+
+    return cleaned.trim();
+  };
+
   return (
     <>
       {/* Print Styles - NUR für diese Komponente */}
@@ -314,7 +329,7 @@ export default function InvoiceLayoutNew({
                   textDecoration: pos.umgewandeltZu ? 'line-through' : 'none',
                   color: pos.umgewandeltZu ? '#9CA3AF' : 'inherit'
                 }}>
-                  {pos.lkCode} {pos.bezeichnung}
+                  {pos.lkCode} {bereinigeBezeichnung(pos.bezeichnung, pos.lkCode)}
                 </span>
 
                 {/* 🔵 BLAU: Umwandlung */}
