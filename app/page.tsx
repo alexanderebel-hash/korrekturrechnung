@@ -114,6 +114,22 @@ const LK_PREISE: { [key: string]: { bezeichnung: string; preis: number; aubPreis
   'LK20_HH': { bezeichnung: 'Haeusliche Betreuung Paragraph 124 SGB XI (Haushaltsbuch)', preis: 8.26, aubPreis: 0.19 }
 };
 
+// LK-Code Normalisierung für Sonderfälle (z.B. LK20.2 in Medifox → LK20_HH in Bewilligung)
+const normalizeLKCode = (code: string): string => {
+  const mappings: { [key: string]: string } = {
+    'LK20.2': 'LK20_HH',
+    'LK20_HH': 'LK20_HH',
+    'LK20HH': 'LK20_HH',
+  };
+  return mappings[code.toUpperCase()] || code;
+};
+
+// Umgekehrte Funktion für Rechnungsdarstellung (LK20_HH → LK20.2)
+const displayLKCode = (code: string): string => {
+  if (code === 'LK20_HH') return 'LK20.2';
+  return code;
+};
+
 const PFLEGEGRAD_SACHLEISTUNG: { [key: number]: number } = {
   1: 131.00,
   2: 796.00,
@@ -301,9 +317,9 @@ export default function Home() {
 
     // Schritt 1: LKs verarbeiten und Bewilligungsstatus prüfen
     const verarbeiteteLKs: RechnungsPosition[] = lkPositionen.map(pos => {
-      // Prüfen ob LK in Bewilligung vorhanden ist
+      // Prüfen ob LK in Bewilligung vorhanden ist (mit Code-Normalisierung für LK20.2 → LK20_HH)
       const bewilligt = bewilligung.some(b =>
-        b.lkCode.toLowerCase().replace(/\s/g, '') === pos.lkCode.toLowerCase().replace(/\s/g, '')
+        normalizeLKCode(b.lkCode) === normalizeLKCode(pos.lkCode)
       );
 
       return {
@@ -619,8 +635,10 @@ export default function Home() {
   const ladeAlleLKs = () => {
     const alleLKs: RechnungsPosition[] = Object.keys(LK_PREISE).map(lkCode => {
       const lkData = LK_PREISE[lkCode];
-      const istBewilligt = bewilligung.some(b => b.lkCode.toUpperCase() === lkCode);
-      
+      const istBewilligt = bewilligung.some(b =>
+        normalizeLKCode(b.lkCode) === normalizeLKCode(lkCode)
+      );
+
       return {
         lkCode: lkCode,
         bezeichnung: lkData.bezeichnung,
@@ -631,7 +649,7 @@ export default function Home() {
         istAUB: false
       };
     });
-    
+
     setRechnungPositionen(alleLKs);
   };
 
@@ -642,14 +660,16 @@ export default function Home() {
     if (field === 'lkCode') {
       const lkCode = (value as string).toUpperCase();
       const lkData = LK_PREISE[lkCode];
-      
+
       if (lkData) {
         updated[index].bezeichnung = lkData.bezeichnung;
         updated[index].preis = lkData.preis;
         updated[index].gesamt = updated[index].menge * lkData.preis;
       }
-      
-      const istBewilligt = bewilligung.some(b => b.lkCode.toUpperCase() === lkCode);
+
+      const istBewilligt = bewilligung.some(b =>
+        normalizeLKCode(b.lkCode) === normalizeLKCode(lkCode)
+      );
       updated[index].bewilligt = istBewilligt;
     }
     
@@ -689,7 +709,8 @@ export default function Home() {
             gesamt: aubGesamt,
             bewilligt: pos.bewilligt,
             istAUB: true,
-            zugehoerigLK: pos.lkCode
+            zugehoerigLK: pos.lkCode,
+            umgewandeltZu: pos.umgewandeltZu
           });
         }
       }
@@ -703,8 +724,12 @@ export default function Home() {
     
     const lk14Pos = positionen.find(p => p.lkCode === 'LK14');
     const lk15Pos = positionen.find(p => p.lkCode === 'LK15');
-    const lk14Bewilligt = bewilligung.find(b => b.lkCode.toUpperCase() === 'LK14');
-    const lk15Bewilligt = bewilligung.find(b => b.lkCode.toUpperCase() === 'LK15');
+    const lk14Bewilligt = bewilligung.find(b =>
+      normalizeLKCode(b.lkCode) === normalizeLKCode('LK14')
+    );
+    const lk15Bewilligt = bewilligung.find(b =>
+      normalizeLKCode(b.lkCode) === normalizeLKCode('LK15')
+    );
     
     if (lk14Pos && lk15Pos && lk14Pos.menge > 0 && !lk14Bewilligt && lk15Bewilligt) {
       const lk15MaxMenge = lk15Bewilligt.jeMonat || (lk15Bewilligt.jeWoche * 4.33);
@@ -733,12 +758,14 @@ export default function Home() {
       if (pos.umgewandeltZu) {
         return pos;
       }
-      
-      const bewilligtPos = bewilligung.find(b => b.lkCode.toUpperCase() === pos.lkCode.toUpperCase());
+
+      const bewilligtPos = bewilligung.find(b =>
+        normalizeLKCode(b.lkCode) === normalizeLKCode(pos.lkCode)
+      );
       if (bewilligtPos) {
         const maxMenge = bewilligtPos.jeMonat || Math.floor(bewilligtPos.jeWoche * 4.33);
         const originalMenge = pos.menge;
-        
+
         if (pos.menge > maxMenge) {
           return {
             ...pos,
@@ -810,11 +837,15 @@ export default function Home() {
 
   const wendeSonderregelnAn = (positionen: RechnungsPosition[]): RechnungsPosition[] => {
     const result = [...positionen];
-    
+
     const lk14Pos = result.find(p => p.lkCode === 'LK14');
     const lk15Pos = result.find(p => p.lkCode === 'LK15');
-    const lk14Bewilligt = bewilligung.find(b => b.lkCode.toUpperCase() === 'LK14');
-    const lk15Bewilligt = bewilligung.find(b => b.lkCode.toUpperCase() === 'LK15');
+    const lk14Bewilligt = bewilligung.find(b =>
+      normalizeLKCode(b.lkCode) === normalizeLKCode('LK14')
+    );
+    const lk15Bewilligt = bewilligung.find(b =>
+      normalizeLKCode(b.lkCode) === normalizeLKCode('LK15')
+    );
     
     if (lk14Pos && lk15Pos && lk14Pos.menge > 0 && !lk14Bewilligt && lk15Bewilligt) {
       const lk15MaxMenge = lk15Bewilligt.jeMonat || (lk15Bewilligt.jeWoche * 4.33);
@@ -869,7 +900,9 @@ export default function Home() {
     positionen = wendeSonderregelnAn(positionen);
     
     positionen = positionen.map(pos => {
-      const bewilligtPos = bewilligung.find(b => b.lkCode.toUpperCase() === pos.lkCode.toUpperCase());
+      const bewilligtPos = bewilligung.find(b =>
+        normalizeLKCode(b.lkCode) === normalizeLKCode(pos.lkCode)
+      );
       if (bewilligtPos) {
         const maxMenge = bewilligtPos.jeMonat || Math.floor(bewilligtPos.jeWoche * 4.33);
         const originalMenge = pos.menge;
@@ -892,6 +925,28 @@ export default function Home() {
     const bewilligtePositionen = positionen.filter(p => p.bewilligt && p.menge > 0);
     const nichtBewilligtePositionen = positionen.filter(p => !p.bewilligt && p.menge > 0);
     const gekuerztePositionen = positionen.filter(p => p.gekuerztVon && p.gekuerztVon > p.menge);
+    
+    // LK14 → LK15 Umwandlung: LK14 muss trotzdem sichtbar sein
+    const lk14InOriginal = rechnungPositionen.find(pos => pos.lkCode === 'LK14');
+    const lk15Bewilligt = bewilligung.find(b =>
+      normalizeLKCode(b.lkCode) === normalizeLKCode('LK15')
+    );
+
+    if (
+      lk14InOriginal &&
+      lk15Bewilligt &&
+      !nichtBewilligtePositionen.find(p => p.lkCode === 'LK14')
+    ) {
+      nichtBewilligtePositionen.push({
+        lkCode: 'LK14',
+        bezeichnung: lk14InOriginal.bezeichnung || 'Zubereitung warme Mahlzeit',
+        menge: lk14InOriginal.menge,
+        preis: lk14InOriginal.preis,
+        gesamt: 0,
+        bewilligt: false,
+        umgewandeltZu: 'LK15'
+      });
+    }
     
     const gesamtBewilligt = bewilligtePositionen.reduce((sum, p) => sum + p.gesamt, 0);
     const gesamtNichtBewilligt = nichtBewilligtePositionen.reduce((sum, p) => sum + p.gesamt, 0);
