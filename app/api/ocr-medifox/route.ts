@@ -77,7 +77,13 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     console.log('🔍 OCR API: PDF bytes read:', arrayBuffer.byteLength);
 
-    const base64 = Buffer.from(arrayBuffer).toString("base64");
+    // Edge-Runtime hat kein Buffer: ArrayBuffer nach Base64 konvertieren
+    const uint8Array = new Uint8Array(arrayBuffer);
+    let binary = "";
+    for (let i = 0; i < uint8Array.byteLength; i++) {
+      binary += String.fromCharCode(uint8Array[i]);
+    }
+    const base64 = btoa(binary);
     console.log('🔍 OCR API: Base64 length:', base64.length);
 
     // Anthropic Client initialisieren
