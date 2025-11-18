@@ -111,53 +111,124 @@ export async function POST(request: NextRequest) {
             },
             {
               type: "text",
-              text: `Analysiere diese Pflegeabrechnung und extrahiere die Daten.
+              text: `Du bist ein Experte für deutsche Pflegerechnungen nach SGB XI/XII.
 
-WICHTIG: Antworte STRIKT als JSON ohne Markdown-Blöcke, ohne Erklärungen, nur pures JSON!
+AUFGABE: Extrahiere ALLE Daten aus dieser Medifox-Rechnung.
 
-Extrahiere:
-- Rechnungsempfänger (Behörde ganz oben)
-- Leistungsempfänger (Name, Vorname, Adresse, Pflegegrad)
-- Rechnungsdaten (Rechnungsnr, IK-Nummer, Zeitraum)
-- Alle Leistungspositionen (LK-Code, Bezeichnung, Menge, Preis)
+🚨 KRITISCHE REGELN FÜR JSON:
+1. Deine Antwort MUSS ausschließlich valides JSON sein
+2. KEIN Text vor oder nach dem JSON-Objekt
+3. KEINE Markdown-Formatierung (keine \`\`\`json)
+4. KEINE Erklärungen oder Kommentare
+5. Nur das pure JSON-Objekt!
 
-Antworte nur mit diesem JSON (keine zusätzlichen Zeichen):
+📊 WICHTIG - ZWEI ANZAHL-SPALTEN:
+Die Rechnung hat oft zwei Anzahl-Spalten:
+- "Anzahl" = ursprünglich erbracht (IGNORIEREN!)
+- "Abr. Anz." = tatsächlich abgerechnet (VERWENDEN!)
+
+Verwende IMMER "Abr. Anz." als menge-Wert.
+Falls nur eine Anzahl-Spalte existiert, verwende diese.
+
+BEISPIEL für problematische Zeile:
+LK07b | Darm- u. Blasenentleerung | 20,00 | 19,00 | 17,01 | 323,19
+                                     ↑ Anzahl  ↑ Abr.Anz
+→ Verwende menge: 19.0 (aus "Abr. Anz.")
+
+📋 ZU EXTRAHIERENDE DATEN:
+
+1. RECHNUNGSEMPFÄNGER (ganz oben):
+   - Behörde (z.B. "Bezirksamt Mitte von Berlin")
+   - Standort (z.B. "Standort Wedding, Muellerstrasse 146-147")
+   - PLZ/Ort (z.B. "13344 Berlin")
+
+2. LEISTUNGSEMPFÄNGER:
+   - Nachname (z.B. "Bollweber")
+   - Vorname (z.B. "Roland Andreas")
+   - Adresse (Straße + Hausnr. + PLZ Ort)
+   - Pflegegrad (als String, z.B. "2")
+
+3. RECHNUNGSDATEN:
+   - Rechnungsnummer
+   - IK-Nummer (z.B. "461104151")
+   - Abrechnungszeitraum (Format: "YYYY-MM-DD bis YYYY-MM-DD")
+
+4. POSITIONEN:
+   Extrahiere ALLE Zeilen inklusive:
+   - Alle AUB-Positionen (formatiere als "AUB_LK02", "AUB_LK07a")
+   - Alle LK-Positionen (z.B. "LK02", "LK07a", "LK20.2")
+   - ZINV (Investitionskosten) als eigene Position
+
+Für jede Position extrahiere:
+- lkCode: String (z.B. "LK02", "AUB_LK04", "LK20.2", "ZINV")
+- bezeichnung: String (vollständiger Text)
+- menge: Number (IMMER aus "Abr. Anz." Spalte!)
+- einzelpreis: Number (als Dezimalzahl, z.B. 17.01)
+- gesamtpreis: Number (als Dezimalzahl)
+- isAUB: Boolean (true wenn lkCode mit "AUB" beginnt)
+
+🎯 EXAKTE JSON-STRUKTUR (so ausgeben):
 {
   "rechnungsempfaenger": {
-    "behoerde": "Bezirksamt Mitte von Berlin",
-    "standort": "Standort Wedding, Muellerstrasse 146-147",
-    "plzOrt": "13344 Berlin"
+    "behoerde": "Bezirksamt Lichtenberg von Berlin",
+    "standort": "Amt für Soziales",
+    "plzOrt": "10360 Berlin"
   },
   "leistungsempfaenger": {
-    "nachname": "Mustermann",
-    "vorname": "Max",
-    "adresse": "Musterstr. 1, 12345 Berlin",
-    "pflegegrad": "3"
+    "nachname": "Nakoinz",
+    "vorname": "Horst Peter",
+    "adresse": "Waldemarstr. 12, 10999 Berlin",
+    "pflegegrad": "2"
   },
   "rechnungsdaten": {
-    "rechnungsNr": "123456",
-    "ikNummer": "461104151",
-    "abrechnungszeitraum": "2025-09-01 bis 2025-09-30"
+    "rechnungsNr": "98765",
+    "ikNummer": "461104096",
+    "abrechnungszeitraum": "2025-04-01 bis 2025-04-30"
   },
   "positionen": [
     {
-      "lkCode": "LK04",
-      "bezeichnung": "Große Körperpflege",
-      "menge": 8,
-      "einzelpreis": 34.01,
-      "gesamtpreis": 272.08,
+      "lkCode": "AUB_LK02",
+      "bezeichnung": "Ausbildungsumlage zu LK02",
+      "menge": 1.0,
+      "einzelpreis": 0.39,
+      "gesamtpreis": 0.39,
+      "isAUB": true
+    },
+    {
+      "lkCode": "LK02",
+      "bezeichnung": "LK02 Kleine Körperpflege",
+      "menge": 1.0,
+      "einzelpreis": 17.01,
+      "gesamtpreis": 17.01,
       "isAUB": false
     },
     {
-      "lkCode": "AUB_LK04",
-      "bezeichnung": "Ausbildungsumlage zu LK04",
-      "menge": 8,
-      "einzelpreis": 0.78,
-      "gesamtpreis": 6.24,
-      "isAUB": true
+      "lkCode": "LK07b",
+      "bezeichnung": "LK07b Darm- und Blasenentleerung erweitert",
+      "menge": 19.0,
+      "einzelpreis": 17.01,
+      "gesamtpreis": 323.19,
+      "isAUB": false
+    },
+    {
+      "lkCode": "ZINV",
+      "bezeichnung": "Investitionskosten 3,38 %",
+      "menge": 1.0,
+      "einzelpreis": 65.43,
+      "gesamtpreis": 65.43,
+      "isAUB": false
     }
   ]
-}`,
+}
+
+⚠️ WICHTIGE HINWEISE:
+- Kommazahlen als Dezimalzahlen: 19.5 (nicht "19,5")
+- LK20.2 bleibt "LK20.2" (MIT Punkt!)
+- Bei fehlenden Daten: null verwenden
+- ZINV muss mit extrahiert werden
+- AUBs immer mit "AUB_" Prefix
+
+NOCHMAL: Antworte AUSSCHLIESSLICH mit dem JSON-Objekt oben. Nichts davor, nichts danach!`,
             },
           ],
         },
