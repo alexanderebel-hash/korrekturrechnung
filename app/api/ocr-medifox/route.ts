@@ -1,8 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 
-export const runtime = "edge";
-export const maxDuration = 60;
+export const runtime = "nodejs";
+export const maxDuration = 300;
 
 // Type definitions für die LK-Positionen
 interface MedifoxPosition {
